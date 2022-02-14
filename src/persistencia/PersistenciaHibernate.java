@@ -30,11 +30,18 @@ public class PersistenciaHibernate {
     	return true;
     }
     
-    public List<Animal> consultarAnimal( String nombre, String especie){
+    public List<Animal> consultarAnimal( String nombre, int especie){
     	
-    	Query q=sesion.createQuery("SELECT a FROM animal a WHERE nombre=:nombre AND especie=:especie");
+    	Query q=sesion.createQuery("SELECT a FROM animal a WHERE nombre LIKE '%:nombre%' AND especie=:especie");
     	q.setParameter(1, nombre);
     	q.setParameter(2, especie);
+    	List<Animal> la=q.list();
+		return la;
+    }
+    public List<Animal> consultarAnimal( String nombre){
+    	
+    	Query q=sesion.createQuery("SELECT a FROM animal a WHERE nombre LIKE '%:nombre%' ");
+    	q.setParameter(1, nombre);
     	List<Animal> la=q.list();
 		return la;
     }

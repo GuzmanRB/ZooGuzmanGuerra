@@ -17,15 +17,26 @@ import javax.swing.JComboBox;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.awt.event.ActionEvent;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 
 public class VentanaAnimales extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textFieldIDAnimal;
 	private JTextField textFieldNombre;
-	private JTextField textFieldDescripcion;
 	private JTextField textFieldFecha;
 	private PersistenciaHibernate per = new PersistenciaHibernate();
+	private JComboBox cbZona;
+	private JComboBox cbEspecie;
+	private JButton btnCancelarInicio;
+	private JLabel lblZona;
+	private JLabel lblFechaNac;
+	private JLabel lblNombre;
+	private JLabel lblEspecie;
+	private JLabel lblIdAnimal;
+	private JScrollPane scrollPane;
+	private JTable table;
 
 	/**
 	 * Launch the application.
@@ -48,25 +59,25 @@ public class VentanaAnimales extends JFrame {
 	 */
 	public VentanaAnimales() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 519, 342);
+		setBounds(100, 100, 519, 489);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		JLabel lblIdAnimal = new JLabel("Id animal");
+		lblIdAnimal = new JLabel("Id animal");
 		lblIdAnimal.setBounds(10, 11, 57, 27);
 		contentPane.add(lblIdAnimal);
 		
-		JLabel lblEspecie = new JLabel("Especie");
+		lblEspecie = new JLabel("Especie");
 		lblEspecie.setBounds(10, 138, 102, 14);
 		contentPane.add(lblEspecie);
 		
-		JLabel lblNombre = new JLabel("Nombre");
+		lblNombre = new JLabel("Nombre");
 		lblNombre.setBounds(10, 74, 46, 14);
 		contentPane.add(lblNombre);
 		
-		JLabel lblFechaNac = new JLabel("Fecha Nac.");
+		lblFechaNac = new JLabel("Fecha Nac.");
 		lblFechaNac.setBounds(10, 192, 102, 14);
 		contentPane.add(lblFechaNac);
 		
@@ -81,11 +92,6 @@ public class VentanaAnimales extends JFrame {
 		textFieldNombre.setBounds(109, 71, 154, 20);
 		contentPane.add(textFieldNombre);
 		textFieldNombre.setColumns(10);
-		
-		textFieldDescripcion = new JTextField();
-		textFieldDescripcion.setBounds(109, 135, 154, 20);
-		contentPane.add(textFieldDescripcion);
-		textFieldDescripcion.setColumns(10);
 		
 		textFieldFecha = new JTextField();
 		textFieldFecha.setEditable(false);
@@ -102,22 +108,38 @@ public class VentanaAnimales extends JFrame {
 		btnBuscar.setBounds(379, 13, 89, 23);
 		contentPane.add(btnBuscar);
 		
-		JButton btnCancelarInicio = new JButton("Cancelar");
-		btnCancelarInicio.setBounds(379, 188, 89, 23);
+		btnCancelarInicio = new JButton("Cancelar");
+		btnCancelarInicio.setBounds(379, 245, 89, 23);
 		contentPane.add(btnCancelarInicio);
 		
-		JLabel lblZona = new JLabel("Zona");
+		lblZona = new JLabel("Zona");
 		lblZona.setBounds(10, 249, 46, 14);
 		contentPane.add(lblZona);
 		
-		JComboBox comboBox = new JComboBox();
-		comboBox.setBounds(109, 246, 154, 20);
-		contentPane.add(comboBox);
+		cbZona = new JComboBox();
+		cbZona.setBounds(109, 246, 154, 20);
+		contentPane.add(cbZona);
+		
+		cbEspecie = new JComboBox();
+		cbEspecie.setBounds(109, 135, 154, 20);
+		contentPane.add(cbEspecie);
+		
+		scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 290, 462, 149);
+		contentPane.add(scrollPane);
+		
+		table = new JTable();
+		scrollPane.setViewportView(table);
 	}
 
 	public List<Animal> buscar() {
-		return null;
+		List<Animal> animales;
+		if (cbEspecie.getSelectedIndex()!=-1) {
+			animales=per.consultarAnimal(textFieldNombre.getText(), cbEspecie.getSelectedIndex());
+		}else {
+			animales=per.consultarAnimal(textFieldNombre.getText());
+		}
 		
-		
+		return animales;
 	}
 }
