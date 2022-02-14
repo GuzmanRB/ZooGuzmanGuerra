@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 14-feb-2022 13:47:46 by Hibernate Tools 4.0.1.Final -->
+<hibernate-mapping>
+    <class name="clasesZoo.Animaltratamiento" table="animaltratamiento" catalog="zoo">
+        <composite-id name="id" class="clasesZoo.AnimaltratamientoId">
+            <key-property name="idAnimal" type="int">
+                <column name="idAnimal" />
+            </key-property>
+            <key-property name="idEmpleado" type="int">
+                <column name="idEmpleado" />
+            </key-property>
+            <key-property name="idTratamiento" type="int">
+                <column name="idTratamiento" />
+            </key-property>
+            <key-property name="fechaHora" type="timestamp">
+                <column name="fechaHora" length="19" />
+            </key-property>
+        </composite-id>
+        <many-to-one name="animal" class="clasesZoo.Animal" update="false" insert="false" fetch="select">
+            <column name="idAnimal" not-null="true" />
+        </many-to-one>
+        <many-to-one name="empleado" class="clasesZoo.Empleado" update="false" insert="false" fetch="select">
+            <column name="idEmpleado" not-null="true" />
+        </many-to-one>
+        <many-to-one name="tratamiento" class="clasesZoo.Tratamiento" update="false" insert="false" fetch="select">
+            <column name="idTratamiento" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>

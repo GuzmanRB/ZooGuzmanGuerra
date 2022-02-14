@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.org/dtd/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+  <table-filter match-catalog="zoo" match-name="alimento"/>
+  <table-filter match-catalog="zoo" match-name="animal"/>
+  <table-filter match-catalog="zoo" match-name="animaltratamiento"/>
+  <table-filter match-catalog="zoo" match-name="consume"/>
+  <table-filter match-catalog="zoo" match-name="empleado"/>
+  <table-filter match-catalog="zoo" match-name="entrada"/>
+  <table-filter match-catalog="zoo" match-name="escapaz"/>
+  <table-filter match-catalog="zoo" match-name="especie"/>
+  <table-filter match-catalog="zoo" match-name="evento"/>
+  <table-filter match-catalog="zoo" match-name="nomina"/>
+  <table-filter match-catalog="zoo" match-name="trabaja"/>
+  <table-filter match-catalog="zoo" match-name="tratamiento"/>
+  <table-filter match-catalog="zoo" match-name="zona"/>
+</hibernate-reverse-engineering>
