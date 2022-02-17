@@ -6,14 +6,19 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import clasesZoo.Animal;
 import clasesZoo.Especie;
+import clasesZoo.Zona;
 import persistencia.PersistenciaHibernate;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import java.awt.event.ActionListener;
@@ -108,10 +113,15 @@ public class VentanaAnimales extends JFrame {
 				buscar();
 			}
 		});
-		btnBuscar.setBounds(379, 13, 89, 23);
+		btnBuscar.setBounds(379, 13, 89, 27);
 		contentPane.add(btnBuscar);
 
 		btnCancelarInicio = new JButton("Cancelar");
+		btnCancelarInicio.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				restablecerTodo();
+			}
+		});
 		btnCancelarInicio.setBounds(379, 245, 89, 23);
 		contentPane.add(btnCancelarInicio);
 
@@ -120,6 +130,7 @@ public class VentanaAnimales extends JFrame {
 		contentPane.add(lblZona);
 
 		cbZona = new JComboBox();
+		cbZona.setEnabled(false);
 		cbZona.setBounds(109, 246, 154, 20);
 		contentPane.add(cbZona);
 
@@ -142,7 +153,69 @@ public class VentanaAnimales extends JFrame {
 		table = new JTable(dtm);
 		scrollPane.setViewportView(table);
 		
+		JButton btnNuevo = new JButton("Nuevo");
+		btnNuevo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				guardarAnimal();
+			}
+		});
+		btnNuevo.setBounds(379, 70, 89, 23);
+		contentPane.add(btnNuevo);
+		
+		ListSelectionModel listSelectionModel= table.getSelectionModel();
+	    listSelectionModel.addListSelectionListener(new ListSelectionListener() {
+	        public void valueChanged(ListSelectionEvent e) {
+	            try {
+	            	rellenarDatos();
+	            } catch (Exception e1) {
+	                // TODO Auto-generated catch block
+	                e1.printStackTrace();
+	            }
+	        }
+	    });
+	    
 		rellenarEspecies();
+		rellenarZonas();
+	}
+
+	protected void guardarAnimal() {
+		// TODO Auto-generated method stub
+		Animal a;
+		String nombre="", especie="";
+		
+		
+		
+		
+		if (!textFieldNombre.getText().trim().equalsIgnoreCase("")) {
+			nombre=textFieldNombre.getText().trim();
+		}
+		if (!cbEspecie.getSelectedItem().toString().trim().equalsIgnoreCase("")) {
+			especie=cbEspecie.getSelectedItem().toString();
+		}
+		
+		Especie e= per.consultarEspecieUnica(especie);
+		
+		if (per.consultarAnimal(nombre, e.getId())==null) {
+			
+			
+			
+		}else {
+			
+			JOptionPane.showMessageDialog(this, "Ya existe un animal con este nombre y especie", "Animal ya existente", JOptionPane.INFORMATION_MESSAGE);
+		}
+		
+		
+	}
+
+	protected void restablecerTodo() {
+		// TODO Auto-generated method stub
+		dtm.setRowCount(0);
+		textFieldIDAnimal.setText("");
+		textFieldNombre.setText("");
+		textFieldFecha.setText("");
+		cbEspecie.setSelectedIndex(-1);
+		cbZona.setSelectedIndex(-1);
+		
 	}
 
 	private void rellenarEspecies() {
@@ -157,30 +230,61 @@ public class VentanaAnimales extends JFrame {
 		cbEspecie.setSelectedIndex(-1);
 		
 	}
+	private void rellenarZonas() {
+		List<Zona> lz =per.consultarZonas();
+		
+		for (int i = 0; i < lz.size(); i++) {
+			cbZona.addItem(lz.get(i).getDescripcion());
+		}
+		cbZona.setSelectedIndex(-1);
+		
+	}
 
 	public List<Animal> buscar() {
 		List<Animal> animales;
 		
 		String desc=(String)cbEspecie.getSelectedItem();
-		Especie e= per.consultarEspecieUnica(desc);
+		if (desc!=null) {
+			Especie e= per.consultarEspecieUnica(desc);
+			animales = per.consultarAnimal(textFieldNombre.getText().trim(),e.getId() );
+		}else {
+			animales = per.consultarAnimal(textFieldNombre.getText().trim(),null );
+		}
 		
-		animales = per.consultarAnimal(textFieldNombre.getText().trim(),e.getId() );
 		rellenarTabla(animales);
 		return animales;
 	}
 
 	public void rellenarTabla(List<Animal> animales) {
 		
+		dtm.setRowCount(0);
 		Object[] datos= new Object[5];
 		
 		for (int i = 0; i < animales.size(); i++) {
 				datos[0]= animales.get(i).getId();
 				datos[1]= animales.get(i).getNombre();
-				datos[2]= animales.get(i).getEspecie();
+				datos[2]= animales.get(i).getEspecie().getId();
 				datos[3]= animales.get(i).getFechaNac();
-				datos[4]= animales.get(i).getZona();
+				datos[4]= animales.get(i).getZona().getId();
 				dtm.addRow(datos);
 		}
+		
+	}
+	
+	public void rellenarDatos() {
+		DefaultTableModel dtm= (DefaultTableModel) table.getModel();
+		if (table.getSelectedRow()!=-1) {
+			String Sid =String.valueOf(dtm.getValueAt(table.getSelectedRow(), 0));
+			Integer id= Integer.parseInt(Sid);
+			
+			Animal a=per.consultarAnimalID(id);
+			textFieldIDAnimal.setText(String.valueOf(a.getId()));
+			textFieldNombre.setText(a.getNombre());
+			textFieldFecha.setText(String.valueOf(a.getFechaNac()));
+			cbEspecie.setSelectedIndex(a.getEspecie().getId()-1);
+			cbZona.setSelectedIndex(a.getZona().getId()-1);
+		}
+		
 		
 	}
 }

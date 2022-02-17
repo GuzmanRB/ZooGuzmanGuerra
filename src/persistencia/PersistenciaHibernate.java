@@ -38,17 +38,33 @@ public class PersistenciaHibernate {
 		Query q;
 		
 		if (especie==null) {
-			q = sesion.createQuery("SELECT a FROM Animal a WHERE nombre LIKE '%?%'");
-			q.setString(0, nombre);
+			q = sesion.createQuery("SELECT a FROM Animal a WHERE nombre LIKE '%"+nombre+"%'");
 			la = q.list();
 		}else {
-			q = sesion.createQuery("SELECT a FROM Animal a WHERE nombre LIKE '%?%' AND idEspecie=?");
-			q.setString(0, nombre);
-			q.setInteger(1, especie);
+			q = sesion.createQuery("SELECT a FROM Animal a WHERE nombre LIKE '%"+nombre+"%' AND idEspecie=?");
+			
+			q.setInteger(0, especie);
 			la = q.list();
 		}
 
 		return la;
+	}
+	public Animal consultarAnimalID (Integer id) {
+		
+		Query q=sesion.createQuery("SELECT a FROM Animal a WHERE id=?");
+		q.setInteger(0, id);
+		Animal a=(Animal) q.uniqueResult();
+		return a;
+	}
+	
+	public Animal conultarAnimal(String nombre, Integer especie) { 
+		
+		Query q = sesion.createQuery("SELECT a FROM Animal a WHERE nombre=? AND idEspecie=?");
+		q.setString(0, nombre);
+		q.setInteger(1, especie);
+		Animal a=(Animal)q.uniqueResult();
+		
+		return a;
 	}
 
 	public List<Zona> consultarZonas() {
