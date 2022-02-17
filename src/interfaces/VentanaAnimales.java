@@ -151,15 +151,20 @@ public class VentanaAnimales extends JFrame {
 		List<Especie> le= per.consultarEspecie();
 		
 		for (int i = 0; i < le.size(); i++) {
-			cbEspecie.addItem(le.get(i).getDescripcion()+" "+le.get(i).getId());
+			cbEspecie.addItem(le.get(i).getDescripcion());
 			
 		}
+		cbEspecie.setSelectedIndex(-1);
 		
 	}
 
 	public List<Animal> buscar() {
 		List<Animal> animales;
-		animales = per.consultarAnimal(textFieldNombre.getText().trim(), cbEspecie.getSelectedIndex()+1);
+		
+		String desc=(String)cbEspecie.getSelectedItem();
+		Especie e= per.consultarEspecieUnica(desc);
+		
+		animales = per.consultarAnimal(textFieldNombre.getText().trim(),e.getId() );
 		rellenarTabla(animales);
 		return animales;
 	}
