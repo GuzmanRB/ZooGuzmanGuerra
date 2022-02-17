@@ -10,6 +10,8 @@ import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
 import clasesZoo.Animal;
+import clasesZoo.Especie;
+import clasesZoo.Zona;
 
 public class PersistenciaHibernate {
 	Session sesion;
@@ -30,20 +32,39 @@ public class PersistenciaHibernate {
     	return true;
     }
     
-    public List<Animal> consultarAnimal( String nombre, int especie){
+    public List<Animal> consultarAnimal( String nombre, Integer especie){
+    	List<Animal> la;
+    	Query q;
     	
-    	Query q=sesion.createQuery("SELECT a FROM animal a WHERE nombre LIKE '%:nombre%' AND especie=:especie");
-    	q.setParameter(1, nombre);
-    	q.setParameter(2, especie);
-    	List<Animal> la=q.list();
+    	switch (especie) {
+		case -1:
+	    	q=sesion.createQuery("SELECT a FROM Animal a WHERE nombre LIKE '%?%'");
+	    	q.setString(0, nombre);
+	    	la=q.list();
+			break;
+		default:
+			q=sesion.createQuery("SELECT a FROM Animal a WHERE nombre LIKE '%?%' AND idEspecie=?");
+	    	q.setString(0, nombre);
+	    	q.setInteger(1, especie);
+	    	la=q.list();
+			break;
+		}
+
 		return la;
     }
-    public List<Animal> consultarAnimal( String nombre){
+    public List<Zona> consultarZonas(){
+    	List<Zona> lz;
+    	Query q=sesion.createQuery("SELECT z FROM Zona z");
+    	lz=q.list();
     	
-    	Query q=sesion.createQuery("SELECT a FROM animal a WHERE nombre LIKE '%:nombre%' ");
-    	q.setParameter(1, nombre);
-    	List<Animal> la=q.list();
-		return la;
+    	return lz;
+    }
+    public List<Especie> consultarEspecie(){
+    	List<Especie> le;
+    	Query q=sesion.createQuery("SELECT e FROM Especie e");
+    	le=q.list();
+    	
+    	return le;
     }
     
 }
