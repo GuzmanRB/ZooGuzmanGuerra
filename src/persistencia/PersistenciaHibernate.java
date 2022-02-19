@@ -57,7 +57,7 @@ public class PersistenciaHibernate {
 		return a;
 	}
 	
-	public Animal conultarAnimal(String nombre, Integer especie) { 
+	public Animal conultarAnimalUnico(String nombre, Integer especie) { 
 		
 		Query q = sesion.createQuery("SELECT a FROM Animal a WHERE nombre=? AND idEspecie=?");
 		q.setString(0, nombre);
@@ -73,6 +73,13 @@ public class PersistenciaHibernate {
 		lz = q.list();
 
 		return lz;
+	}
+	public Zona consultarZonaUnica(String desc) {
+		Zona z;
+		Query q= sesion.createQuery("SELECT z FROM Zona z WHERE descripcion=?");
+		q.setString(0, desc);
+		z=(Zona)q.uniqueResult();
+		return z;
 	}
 
 	public List<Especie> consultarEspecie() {
