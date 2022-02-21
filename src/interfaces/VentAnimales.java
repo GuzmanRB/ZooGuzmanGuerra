@@ -51,11 +51,12 @@ public class VentAnimales extends JDialog {
 	private JButton btnNuevo;
 
 	public VentAnimales(boolean modal, PersistenciaHibernate per) {
+		setResizable(false);
 		
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setModal(modal);
-		setTitle("Animales");
+		setTitle("ANIMALES");
 		setBounds(100, 100, 524, 482);
 		getContentPane().setLayout(null);
 		{
@@ -109,7 +110,7 @@ public class VentAnimales extends JDialog {
 		textFieldFecha.setColumns(10);
 		textFieldFecha.setVisible(false);
 		
-		lblFormto = new JLabel("(DD-MM-AAAA)");
+		lblFormto = new JLabel("(DD/MM/AAAA)");
 		lblFormto.setBounds(200, 116, 98, 14);
 		getContentPane().add(lblFormto);
 		lblFormto.setVisible(false);
@@ -187,66 +188,75 @@ public class VentAnimales extends JDialog {
 	
 	protected void nuevoAnimal() {
 		// TODO Auto-generated method stub
-		restablecerTodo();
-		revelarCampos(true);
-		btnModificar.setText("Guardar");
+		FormAnimal fa= new FormAnimal(per);
+		fa.setVisible(true);
 		
 	}
 
 
 	public void guardarAnimal() {
-		Animal a= new Animal();
-		String nombre = textFieldNombre.getText().trim();
-		String especie = (String)cbEspecie.getSelectedItem();
-		String fecha= textFieldFecha.getText().trim();
-		String zona=(String)cbZona.getSelectedItem();
+		Animal a= per.consultarAnimalID((Integer)dtm.getValueAt(table.getSelectedRow(), 0));
 		
-		if (nombre.equals("")) {
-			JOptionPane.showMessageDialog(this, "Debe introducir un nombre", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
-			textFieldNombre.grabFocus();
-			return;
-		}
-		if (especie==null) {
-			JOptionPane.showMessageDialog(this, "Debe seleccionar una especie", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
-			cbEspecie.grabFocus();
-			return;
-		}
-		Especie esp= per.consultarEspecieUnica(especie);
-		
-		if (per.conultarAnimalUnico(nombre, esp.getId())!=null) {
-			JOptionPane.showMessageDialog(this, "Ya existe un animal con ese nombre y especie", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
-			textFieldNombre.grabFocus();
-			return;
-		}
-		if(zona==null) {
-			JOptionPane.showMessageDialog(this, "Debe selecionar una zona", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
-			cbZona.grabFocus();
-			return;
-		}
-		//Validamos fecha
-		if (fecha.equals("")) {
-			a.setFechaNac(null);
-		}else {
-			SimpleDateFormat sdf= new SimpleDateFormat("dd-MM-aaaa");
-			try {
-				Date d=sdf.parse(fecha);
-				a.setFechaNac(d);
-			} catch (ParseException e) {
-				JOptionPane.showMessageDialog(this, "Formato de la fecha incorrecto", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
-				textFieldFecha.grabFocus();
+		if (a!=null) {
+			String nombre = textFieldNombre.getText().trim();
+			String especie = (String)cbEspecie.getSelectedItem();
+			String fecha= textFieldFecha.getText().trim();
+			String zona=(String)cbZona.getSelectedItem();
+			
+			if (nombre.equals("")) {
+				JOptionPane.showMessageDialog(this, "Debe introducir un nombre", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
+				textFieldNombre.grabFocus();
 				return;
 			}
+			if (especie==null) {
+				JOptionPane.showMessageDialog(this, "Debe seleccionar una especie", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
+				cbEspecie.grabFocus();
+				return;
+			}
+			Especie esp= (Especie)per.consultarUnico("Especie", especie);
+			
+			if (per.conultarAnimalUnico(nombre, esp.getId())!=null) {
+				JOptionPane.showMessageDialog(this, "Ya existe un animal con ese nombre y especie", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
+				textFieldNombre.grabFocus();
+				return;
+			}
+			if(zona==null) {
+				JOptionPane.showMessageDialog(this, "Debe selecionar una zona", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
+				cbZona.grabFocus();
+				return;
+			}
+			//Validamos fecha
+			if (fecha.equals("")) {
+				a.setFechaNac(null);
+			}else {
+				SimpleDateFormat sdf= new SimpleDateFormat("dd/MM/yyyy");
+				try {
+					Date d=sdf.parse(fecha);
+					a.setFechaNac(d);
+				} catch (ParseException e) {
+					JOptionPane.showMessageDialog(this, "Formato de la fecha incorrecto", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
+					textFieldFecha.grabFocus();
+					return;
+				}
+			}
+			
+			
+			Zona zon=(Zona)per.consultarUnico("Zona",zona);
+			
+			
+			DefaultTableModel dtm= (DefaultTableModel) table.getModel();
+			a.setNombre(nombre.toUpperCase());
+			a.setEspecie(esp);
+			a.setZona(zon);
+			if (per.guardar(a)) {
+				JOptionPane.showMessageDialog(this, "Animal modificado correctamente", "CORRECTO", JOptionPane.PLAIN_MESSAGE);
+				restablecerTodo();
+			}else {
+				JOptionPane.showMessageDialog(this, "Modificacion fallida", "ERROR", JOptionPane.PLAIN_MESSAGE);
+			}
 		}
+
 		
-		
-		Zona zon=per.consultarZonaUnica(zona);
-		
-		a.setNombre(nombre.toUpperCase());
-		a.setEspecie(esp);
-		a.setZona(zon);
-		per.guardarAnimal(a);
-		JOptionPane.showMessageDialog(this, "Animal guardado correctamente", "CORRECTO", JOptionPane.PLAIN_MESSAGE);
-		restablecerTodo();
 	}
 
 	public List<Animal> buscar() {
@@ -255,13 +265,14 @@ public class VentAnimales extends JDialog {
 		
 		String desc=(String)cbEspecie.getSelectedItem();
 		if (desc!=null) {
-			Especie e= per.consultarEspecieUnica(desc);
+			Especie e= (Especie)per.consultarUnico("Especie", desc);
 			animales = per.consultarAnimal(textFieldNombre.getText().trim(),e.getId() );
 		}else {
 			animales = per.consultarAnimal(textFieldNombre.getText().trim(),null );
+			
 		}
 		
-		if (animales==null) {
+		if (animales.isEmpty()) {
 			revelarCampos(false);
 		}else {
 			revelarCampos(true);
@@ -273,7 +284,7 @@ public class VentAnimales extends JDialog {
 	
 	private void revelarCampos(boolean flag) {
 		
-		btnModificar.setVisible(flag);
+		
 		lblFechaNac.setVisible(flag);
 		lblFormto.setVisible(flag);
 		textFieldFecha.setVisible(flag);
@@ -284,7 +295,7 @@ public class VentAnimales extends JDialog {
 
 
 	private void rellenarZonas() {
-		List<Zona> lz =per.consultarZonas();
+		List<Zona> lz =(List)per.consultarPorDesc("Zona", "");
 		
 		for (int i = 0; i < lz.size(); i++) {
 			cbZona.addItem(lz.get(i).getDescripcion());
@@ -296,7 +307,7 @@ public class VentAnimales extends JDialog {
 	private void rellenarEspecies() {
 		// TODO Auto-generated method stub
 		
-		List<Especie> le= per.consultarEspecie();
+		List<Especie> le= (List)per.consultarPorDesc("Especie", "");
 		
 		for (int i = 0; i < le.size(); i++) {
 			cbEspecie.addItem(le.get(i).getDescripcion());
@@ -310,10 +321,17 @@ public class VentAnimales extends JDialog {
 		if (table.getSelectedRow()!=-1) {
 			String Sid =String.valueOf(dtm.getValueAt(table.getSelectedRow(), 0));
 			Integer id= Integer.parseInt(Sid);
-			
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			btnModificar.setVisible(true);
 			Animal a=per.consultarAnimalID(id);
 			textFieldNombre.setText(a.getNombre());
-			textFieldFecha.setText(String.valueOf(a.getFechaNac()));
+			if (a.getFechaNac()!=null) {
+				textFieldFecha.setText(sdf.format(a.getFechaNac()));
+			}else {
+				textFieldFecha.setText("");
+			}
+			
+			
 			cbEspecie.setSelectedIndex(a.getEspecie().getId()-1);
 			cbZona.setSelectedIndex(a.getZona().getId()-1);
 		}
@@ -324,12 +342,17 @@ public class VentAnimales extends JDialog {
 		
 		dtm.setRowCount(0);
 		Object[] datos= new Object[5];
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		
 		for (int i = 0; i < animales.size(); i++) {
 				datos[0]= animales.get(i).getId();
 				datos[1]= animales.get(i).getNombre();
 				datos[2]= animales.get(i).getEspecie().getDescripcion();
-				datos[3]= animales.get(i).getFechaNac();
+				if (animales.get(i).getFechaNac()!=null) {
+					datos[3]= sdf.format(animales.get(i).getFechaNac());
+				}else {
+					datos[3]= animales.get(i).getFechaNac();
+				}
 				datos[4]= animales.get(i).getZona().getDescripcion();
 				dtm.addRow(datos);
 		}
@@ -343,8 +366,8 @@ public class VentAnimales extends JDialog {
 		cbEspecie.setSelectedIndex(-1);
 		cbZona.setSelectedIndex(-1);
 		revelarCampos(false);
-		btnModificar.setText("Modificar");
 		textFieldNombre.grabFocus();
+		btnModificar.setVisible(false);
 		
 	}
 }

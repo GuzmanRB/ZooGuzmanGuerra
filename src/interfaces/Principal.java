@@ -40,13 +40,14 @@ public class Principal extends JFrame {
 	 * Create the frame.
 	 */
 	public Principal() {
+		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 595, 439);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		
-		JMenu mZoologico = new JMenu("Zoologico");
+		JMenu mZoologico = new JMenu("Zool\u00F3gico");
 		menuBar.add(mZoologico);
 		
 		JMenuItem mIAnimales = new JMenuItem("Animales");
@@ -77,20 +78,35 @@ public class Principal extends JFrame {
 		});
 		mZoologico.add(mIEspecies);
 		
-		JMenu mTrabajadores = new JMenu("Trabajadores");
-		menuBar.add(mTrabajadores);
+		JMenu mPersonal = new JMenu("Personal");
+		menuBar.add(mPersonal);
 		
 		JMenuItem mIEmpleados = new JMenuItem("Empleados");
-		mTrabajadores.add(mIEmpleados);
+		mPersonal.add(mIEmpleados);
 		
 		JMenuItem mINominas = new JMenuItem("Nominas");
-		mTrabajadores.add(mINominas);
+		mPersonal.add(mINominas);
 		
-		JMenu mAlmacen = new JMenu("Almacen");
-		menuBar.add(mAlmacen);
+		JMenu mCuidados = new JMenu("Cuidados");
+		menuBar.add(mCuidados);
 		
 		JMenuItem mIAlimentos = new JMenuItem("Alimentos");
-		mAlmacen.add(mIAlimentos);
+		mIAlimentos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				VentCuidados va= new VentCuidados("Alimento", per);
+				va.setVisible(true);
+			}
+		});
+		mCuidados.add(mIAlimentos);
+		
+		JMenuItem mITratamientos = new JMenuItem("Tratamientos");
+		mITratamientos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				VentCuidados vc= new VentCuidados("Tratamiento", per);
+				vc.setVisible(true);
+			}
+		});
+		mCuidados.add(mITratamientos);
 		
 		JMenu mVentas = new JMenu("Ventas");
 		menuBar.add(mVentas);

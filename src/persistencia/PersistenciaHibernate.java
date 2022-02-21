@@ -9,8 +9,10 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
+import clasesZoo.Alimento;
 import clasesZoo.Animal;
 import clasesZoo.Especie;
+import clasesZoo.Tratamiento;
 import clasesZoo.Zona;
 
 public class PersistenciaHibernate {
@@ -26,13 +28,19 @@ public class PersistenciaHibernate {
 		sesion = sessionFactory.openSession();
 	}
 
-	public boolean guardarAnimal(Animal a) {
+	public boolean guardar(Object a) {
 		sesion.beginTransaction();
 		sesion.save(a);
 		sesion.getTransaction().commit();
 		return true;
 	}
-
+	public boolean borrar(Object a) {
+		sesion.beginTransaction();
+		sesion.delete(a);
+		sesion.getTransaction().commit();
+		return true;
+	}
+	
 	public List<Animal> consultarAnimal(String nombre, Integer especie) {
 		List<Animal> la;
 		Query q;
@@ -67,35 +75,20 @@ public class PersistenciaHibernate {
 		return a;
 	}
 
-	public List<Zona> consultarZonas() {
-		List<Zona> lz;
-		Query q = sesion.createQuery("SELECT z FROM Zona z");
-		lz = q.list();
 
-		return lz;
-	}
-	public Zona consultarZonaUnica(String desc) {
-		Zona z;
-		Query q= sesion.createQuery("SELECT z FROM Zona z WHERE descripcion=?");
+	public Object consultarUnico(String clase, String desc) {
+		Object e;
+		Query q= sesion.createQuery("SELECT e FROM "+clase+" e WHERE descripcion=?");
 		q.setString(0, desc);
-		z=(Zona)q.uniqueResult();
-		return z;
-	}
-
-	public List<Especie> consultarEspecie() {
-		List<Especie> le;
-		Query q = sesion.createQuery("SELECT e FROM Especie e");
-		le = q.list();
-		return le;
-	}
-
-
-	public Especie consultarEspecieUnica(String desc) {
-		Especie e;
-		Query q= sesion.createQuery("SELECT e FROM Especie e WHERE descripcion=?");
-		q.setString(0, desc);
-		e=(Especie)q.uniqueResult();
+		e=q.uniqueResult();
 		return e;
+	}
+
+	public List<Object> consultarPorDesc(String clase, String desc) {
+		List<Object> la ;
+		Query q = sesion.createQuery("SELECT a FROM "+clase+" a WHERE descripcion LIKE '%"+desc+"%'");
+		la = q.list();
+		return la;
 	}
 
 }
