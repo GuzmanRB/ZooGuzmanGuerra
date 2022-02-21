@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableModel;
 
 import clasesZoo.Especie;
 import clasesZoo.Zona;
+import persistencia.Persistencia;
 import persistencia.PersistenciaHibernate;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -27,7 +28,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 public class VentZonas extends JDialog {
-	private PersistenciaHibernate per;
+	private Persistencia per;
 	private JButton btnNueva;
 	private JButton btnBorrar;
 	private JTextField textFieldDesc;
@@ -38,7 +39,7 @@ public class VentZonas extends JDialog {
 	private JButton btnCancelar;
 	private JButton btnModifcar;
 
-	public VentZonas(boolean modal, PersistenciaHibernate per) {
+	public VentZonas(boolean modal, Persistencia per) {
 		setResizable(false);
 		setTitle("ZONAS");
 
@@ -69,7 +70,12 @@ public class VentZonas extends JDialog {
 		btnBorrar.setVisible(false);
 		btnBorrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				borrar();
+				try {
+					borrar();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnBorrar.setBounds(256, 303, 108, 34);
@@ -85,7 +91,12 @@ public class VentZonas extends JDialog {
 			btnBuscar = new JButton("Buscar");
 			btnBuscar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					buscar();
+					try {
+						buscar();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			});
 			btnBuscar.setBounds(439, 28, 108, 34);
@@ -128,7 +139,12 @@ public class VentZonas extends JDialog {
 		btnModifcar = new JButton("Modificar");
 		btnModifcar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				guardar();
+				try {
+					guardar();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnModifcar.setVisible(false);
@@ -152,7 +168,7 @@ public class VentZonas extends JDialog {
 		dtm.setRowCount(0);
 	}
 
-	private void buscar() {
+	private void buscar() throws Exception {
 		mostrarBotones(true);
 		String desc = textFieldDesc.getText().trim();
 		rellenarTabla((List)per.consultarPorDesc("Zona", desc));
@@ -178,14 +194,14 @@ public class VentZonas extends JDialog {
 		}
 
 	}
-	private void borrar() {
+	private void borrar() throws Exception {
 		if (table.getSelectedRow()!=-1) {
 			String desc = (String) dtm.getValueAt(table.getSelectedRow(), 1);
 			Zona z=(Zona)per.consultarUnico("Zona", desc);
 			if (z.getAnimals().isEmpty()) {
 				if (z.getEmpleados().isEmpty()) {
 					per.borrar(z);
-					JOptionPane.showMessageDialog(this, "Especie borrada correctamente", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(this, "Zona borrada correctamente", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
 					textFieldDesc.setText("");
 					buscar();
 				}else {
@@ -202,7 +218,7 @@ public class VentZonas extends JDialog {
 		
 		
 	}
-	private void guardar() {
+	private void guardar() throws Exception {
 		if (table.getSelectedRow()!=-1) {
 			String desc= (String) dtm.getValueAt(table.getSelectedRow(), 1);
 			Zona z= (Zona)per.consultarUnico("Zona", desc);

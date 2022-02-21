@@ -2,6 +2,7 @@ package interfaces;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -15,16 +16,17 @@ import javax.swing.border.EmptyBorder;
 
 import clasesZoo.Especie;
 import clasesZoo.Zona;
+import persistencia.Persistencia;
 import persistencia.PersistenciaHibernate;
 
 public class FormEspecies extends JDialog {
 
 	private JTextField textFieldDesc;
-	private PersistenciaHibernate per;
+	private Persistencia per;
 	
 	
 	
-	public FormEspecies(PersistenciaHibernate per) {
+	public FormEspecies(Persistencia per) {
 		setResizable(false);
 		
 		setModal(true);
@@ -49,7 +51,15 @@ public class FormEspecies extends JDialog {
 			JButton btnGuardar = new JButton("Guardar");
 			btnGuardar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					guardar();
+					try {
+						guardar();
+					} catch (HeadlessException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			});
 			btnGuardar.setBounds(316, 18, 108, 34);
@@ -67,7 +77,7 @@ public class FormEspecies extends JDialog {
 			getContentPane().add(btnLimpiar);
 		}
 	}
-	private void guardar() {
+	private void guardar() throws HeadlessException, Exception {
 		Especie e=  new Especie();
 		String nuevaDesc= textFieldDesc.getText().trim().toUpperCase();
 		if (nuevaDesc.equals("")) {

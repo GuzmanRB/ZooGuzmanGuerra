@@ -19,6 +19,7 @@ import clasesZoo.Animal;
 import clasesZoo.Empleado;
 import clasesZoo.Especie;
 import clasesZoo.Zona;
+import persistencia.Persistencia;
 import persistencia.PersistenciaHibernate;
 
 import javax.swing.JLabel;
@@ -27,6 +28,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class VentEmpleados extends JDialog {
 	private JTextField textFieldNombre;
@@ -34,9 +37,19 @@ public class VentEmpleados extends JDialog {
 	private JTextField textFieldFecha;
 	private JTable table;
 	private DefaultTableModel dtm;
-	private PersistenciaHibernate per;
+	private Persistencia per;
+	private JButton btnModificar;
+	private JButton btnCancelar;
+	private JButton btnNuevo;
+	private JButton btnBuscar;
+	private JScrollPane scrollPane;
+	private JLabel lblFechaNac;
+	private JLabel lblFormato;
+	private JLabel lblDireccin;
+	private JLabel label;
+	private JButton btnBorrar;
 
-	public VentEmpleados(PersistenciaHibernate per) {
+	public VentEmpleados(Persistencia per) {
 
 		this.per = per;
 
@@ -46,7 +59,7 @@ public class VentEmpleados extends JDialog {
 		setBounds(100, 100, 532, 409);
 		getContentPane().setLayout(null);
 
-		JLabel label = new JLabel("Nombre");
+		label = new JLabel("Nombre");
 		label.setBounds(10, 11, 63, 34);
 		getContentPane().add(label);
 
@@ -55,24 +68,71 @@ public class VentEmpleados extends JDialog {
 		textFieldNombre.setBounds(103, 18, 267, 20);
 		getContentPane().add(textFieldNombre);
 
-		JButton btnBuscar = new JButton("Buscar");
+		btnBuscar = new JButton("Buscar");
+		btnBuscar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					buscar();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		btnBuscar.setBounds(408, 17, 108, 34);
 		getContentPane().add(btnBuscar);
 
-		JButton btnNuevo = new JButton("Nuevo");
+		btnBorrar = new JButton("Borrar");
+		btnBorrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					borrar();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		btnBorrar.setVisible(false);
+		btnBorrar.setBounds(283, 152, 108, 34);
+		getContentPane().add(btnBorrar);
+
+		btnNuevo = new JButton("Nuevo");
+		btnNuevo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				FormEmpleado fe = new FormEmpleado(per);
+				fe.setVisible(true);
+			}
+		});
 		btnNuevo.setBounds(408, 62, 108, 34);
 		getContentPane().add(btnNuevo);
 
-		JButton btnModificar = new JButton("Modificar");
+		btnModificar = new JButton("Modificar");
+		btnModificar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					guardarEmpleado();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		btnModificar.setVisible(false);
 		btnModificar.setBounds(408, 107, 108, 34);
 		getContentPane().add(btnModificar);
 
-		JButton btnCancelar = new JButton("Cancelar");
+		btnCancelar = new JButton("Cancelar");
+		btnCancelar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				restablecerTodo();
+			}
+		});
 		btnCancelar.setBounds(408, 152, 108, 34);
 		getContentPane().add(btnCancelar);
 
-		JLabel lblDireccin = new JLabel("Direcci\u00F3n");
-		lblDireccin.setBounds(10, 72, 46, 14);
+		lblDireccin = new JLabel("Direcci\u00F3n");
+		lblDireccin.setBounds(10, 72, 80, 14);
 		getContentPane().add(lblDireccin);
 
 		textFieldDirec = new JTextField();
@@ -81,19 +141,22 @@ public class VentEmpleados extends JDialog {
 		textFieldDirec.setColumns(10);
 
 		textFieldFecha = new JTextField();
+		textFieldFecha.setVisible(false);
 		textFieldFecha.setBounds(103, 114, 108, 20);
 		getContentPane().add(textFieldFecha);
 		textFieldFecha.setColumns(10);
 
-		JLabel lblFechaNac = new JLabel("Fecha Nac");
+		lblFechaNac = new JLabel("Fecha Nac");
+		lblFechaNac.setVisible(false);
 		lblFechaNac.setBounds(10, 117, 63, 14);
 		getContentPane().add(lblFechaNac);
 
-		JLabel lblFormato = new JLabel("(DD/MM/AAAA)");
+		lblFormato = new JLabel("(DD/MM/AAAA)");
+		lblFormato.setVisible(false);
 		lblFormato.setBounds(236, 117, 134, 14);
 		getContentPane().add(lblFormato);
 
-		JScrollPane scrollPane = new JScrollPane();
+		scrollPane = new JScrollPane();
 		scrollPane.setBounds(10, 197, 506, 172);
 		getContentPane().add(scrollPane);
 		dtm = new DefaultTableModel();
@@ -111,6 +174,11 @@ public class VentEmpleados extends JDialog {
 			public void valueChanged(ListSelectionEvent e) {
 				try {
 					rellenarDatos();
+					if (table.getSelectedRow()>=0) {
+						btnModificar.setVisible(true);
+						btnBorrar.setVisible(true);
+					}
+
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -119,156 +187,137 @@ public class VentEmpleados extends JDialog {
 		});
 	}
 
-	public void guardarEmpleado() {
-		if ((Integer) dtm.getValueAt(table.getSelectedRow(), 0) != -1) {
+	public void guardarEmpleado() throws Exception {
+
+		
+		if (table.getSelectedRow() >= 0) {
+			Empleado e = per.consultarEmpleadoID((Integer) dtm.getValueAt(table.getSelectedRow(), 0));
+			if (e != null) {
+				String nombre = textFieldNombre.getText().trim();
+				String direccion = textFieldDirec.getText().trim();
+				String fecha = textFieldFecha.getText().trim();
+
+				if (nombre.equals("")) {
+					JOptionPane.showMessageDialog(this, "Debe introducir un nombre", "INFORMACION",
+							JOptionPane.INFORMATION_MESSAGE);
+					textFieldNombre.grabFocus();
+					return;
+				}
+				if (direccion.equalsIgnoreCase("")) {
+					JOptionPane.showMessageDialog(this, "Debe introducir una dirección", "INFORMACION",
+							JOptionPane.WARNING_MESSAGE);
+					textFieldDirec.grabFocus();
+					return;
+				}
+
+				if (per.consultarEmpleadoUnico(nombre, direccion) != null) {
+					JOptionPane.showMessageDialog(this, "Ya existe un empleado con ese nombre y dirreción",
+							"INFORMACION", JOptionPane.WARNING_MESSAGE);
+					textFieldNombre.grabFocus();
+					return;
+				}
+
+				// Validamos fecha
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+				sdf.setLenient(false);
+				try {
+					Date d = sdf.parse(fecha);
+					e.setFechaNac(d);
+				} catch (ParseException p) {
+					JOptionPane.showMessageDialog(this, "Formato de la fecha incorrecto o vacío", "INFORMACION",
+							JOptionPane.WARNING_MESSAGE);
+					textFieldFecha.grabFocus();
+					return;
+				}
+
+				DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+				e.setNombre(nombre.toUpperCase());
+				e.setDireccion(direccion);
+				if (per.guardar(e)) {
+					JOptionPane.showMessageDialog(this, "Empleado modificado correctamente", "CORRECTO",
+							JOptionPane.PLAIN_MESSAGE);
+					restablecerTodo();
+					buscar();
+				} else {
+					JOptionPane.showMessageDialog(this, "Modificacion fallida", "ERROR", JOptionPane.PLAIN_MESSAGE);
+					return;
+				}
+			}
 
 		}
-		Empleado e = per.consultarEmpleadoID((Integer) dtm.getValueAt(table.getSelectedRow(), 0));
 
-		if (e != null) {
-			String nombre = textFieldNombre.getText().trim();
-			String direccion = textFieldDirec.getText().trim();
-			String fecha = textFieldFecha.getText().trim();
-
-			if (nombre.equals("")) {
-				JOptionPane.showMessageDialog(this, "Debe introducir un nombre", "INFORMACION",
-						JOptionPane.INFORMATION_MESSAGE);
-				textFieldNombre.grabFocus();
-				return;
-			}
-			if (direccion.equalsIgnoreCase("")) {
-				JOptionPane.showMessageDialog(this, "Debe introducir una dirección", "INFORMACION",
-						JOptionPane.WARNING_MESSAGE);
-				textFieldDirec.grabFocus();
-				return;
-			}
-
-			if (per.consultarEmpleadoUnico(nombre, direccion) != null) {
-				JOptionPane.showMessageDialog(this, "Ya existe un empleado con ese nombre y dorreción", "INFORMACION",
-						JOptionPane.WARNING_MESSAGE);
-				textFieldNombre.grabFocus();
-				return;
-			}
-
-			// Validamos fecha
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-			try {
-				Date d = sdf.parse(fecha);
-				e.setFechaNac(d);
-			} catch (ParseException p) {
-				JOptionPane.showMessageDialog(this, "Formato de la fecha incorrecto o vacío", "INFORMACION",
-						JOptionPane.WARNING_MESSAGE);
-				textFieldFecha.grabFocus();
-				return;
-			}
-
-			DefaultTableModel dtm = (DefaultTableModel) table.getModel();
-			e.setNombre(nombre.toUpperCase());
-			e.setDireccion(direccion);
-			if (per.guardar(e)) {
-				JOptionPane.showMessageDialog(this, "Empleado modificado correctamente", "CORRECTO",
-						JOptionPane.PLAIN_MESSAGE);
-				restablecerTodo();
-			} else {
-				JOptionPane.showMessageDialog(this, "Modificacion fallida", "ERROR", JOptionPane.PLAIN_MESSAGE);
-			}
+		else {
+			JOptionPane.showMessageDialog(this, "Debe selecionar un empleado a modificar", "INFORMACION",
+					JOptionPane.INFORMATION_MESSAGE);
 		}
 
 	}
 
-	public List<Empleado> buscar() {
+	public void buscar() throws Exception {
 
 		List<Empleado> empleados;
 
 		String direccion = textFieldDirec.getText();
 		if (!direccion.equals("")) {
-			
+
 			empleados = per.consultarEmpleados(textFieldNombre.getText().trim(), textFieldDirec.getText().trim());
 		} else {
-			empleados = per.consultarEmpleados(textFieldNombre.getText().trim(),"");
+			empleados = per.consultarEmpleados(textFieldNombre.getText().trim(), "");
 
 		}
 
 		if (empleados.isEmpty()) {
 			revelarCampos(false);
+			JOptionPane.showMessageDialog(this, "No hay empleados", "Buscar",
+					JOptionPane.INFORMATION_MESSAGE);
 		} else {
 			revelarCampos(true);
 		}
 
 		rellenarTabla(empleados);
-		return empleados;
 	}
 
 	private void revelarCampos(boolean flag) {
 
 		lblFechaNac.setVisible(flag);
-		lblFormto.setVisible(flag);
+		lblFormato.setVisible(flag);
 		textFieldFecha.setVisible(flag);
-		cbZona.setVisible(flag);
-		lblZonas.setVisible(flag);
+		btnModificar.setVisible(flag);
+		btnBorrar.setVisible(flag);
 
 	}
 
-	private void rellenarZonas() {
-		List<Zona> lz = (List) per.consultarPorDesc("Zona", "");
-
-		for (int i = 0; i < lz.size(); i++) {
-			cbZona.addItem(lz.get(i).getDescripcion());
-		}
-		cbZona.setSelectedIndex(-1);
-
-	}
-
-	private void rellenarEspecies() {
-		// TODO Auto-generated method stub
-
-		List<Especie> le = (List) per.consultarPorDesc("Especie", "");
-
-		for (int i = 0; i < le.size(); i++) {
-			cbEspecie.addItem(le.get(i).getDescripcion());
-
-		}
-		cbEspecie.setSelectedIndex(-1);
-
-	}
-
-	public void rellenarDatos() {
+	public void rellenarDatos() throws Exception {
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		if (table.getSelectedRow() != -1) {
 			String Sid = String.valueOf(dtm.getValueAt(table.getSelectedRow(), 0));
 			Integer id = Integer.parseInt(Sid);
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			btnModificar.setVisible(true);
-			Animal a = per.consultarAnimalID(id);
-			textFieldNombre.setText(a.getNombre());
-			if (a.getFechaNac() != null) {
-				textFieldFecha.setText(sdf.format(a.getFechaNac()));
+			btnBorrar.setVisible(true);
+			Empleado e = per.consultarEmpleadoID(id);
+			textFieldNombre.setText(e.getNombre());
+			textFieldDirec.setText(e.getDireccion());
+			if (e.getFechaNac() != null) {
+				textFieldFecha.setText(sdf.format(e.getFechaNac()));
 			} else {
 				textFieldFecha.setText("");
 			}
-
-			cbEspecie.setSelectedIndex(a.getEspecie().getId() - 1);
-			cbZona.setSelectedIndex(a.getZona().getId() - 1);
 		}
 
 	}
 
-	public void rellenarTabla(List<Animal> animales) {
+	public void rellenarTabla(List<Empleado> empleados) {
 
 		dtm.setRowCount(0);
-		Object[] datos = new Object[5];
+		Object[] datos = new Object[4];
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-		for (int i = 0; i < animales.size(); i++) {
-			datos[0] = animales.get(i).getId();
-			datos[1] = animales.get(i).getNombre();
-			datos[2] = animales.get(i).getEspecie().getDescripcion();
-			if (animales.get(i).getFechaNac() != null) {
-				datos[3] = sdf.format(animales.get(i).getFechaNac());
-			} else {
-				datos[3] = animales.get(i).getFechaNac();
-			}
-			datos[4] = animales.get(i).getZona().getDescripcion();
+		for (int i = 0; i < empleados.size(); i++) {
+			datos[0] = empleados.get(i).getId();
+			datos[1] = empleados.get(i).getNombre();
+			datos[2] = empleados.get(i).getDireccion();
+			datos[3] = sdf.format(empleados.get(i).getFechaNac());
 			dtm.addRow(datos);
 		}
 
@@ -278,13 +327,48 @@ public class VentEmpleados extends JDialog {
 		// TODO Auto-generated method stub
 		dtm.setRowCount(0);
 		textFieldNombre.setText("");
+		textFieldDirec.setText("");
 		textFieldFecha.setText("");
-		cbEspecie.setSelectedIndex(-1);
-		cbZona.setSelectedIndex(-1);
 		revelarCampos(false);
 		textFieldNombre.grabFocus();
 		btnModificar.setVisible(false);
+		btnBorrar.setVisible(true);
 
 	}
+	private void borrar() throws Exception {
+			
+		if (table.getSelectedRow()>=0) {
+			Empleado e= per.consultarEmpleadoID((Integer)dtm.getValueAt(table.getSelectedRow(), 0));
+			if (!e.getTratamientos().isEmpty()) {
+				JOptionPane.showMessageDialog(this, "El empleado tiene tratamientos asociados, no es posible eliminarlo", "INFORMACION",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (!e.getZonas().isEmpty()) {
+				JOptionPane.showMessageDialog(this, "El empleado tiene zonas asociados, no es posible eliminarlo", "INFORMACION",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (!e.getNominas().isEmpty()) {
+				JOptionPane.showMessageDialog(this, "El empleado tiene nominas asociados, no es posible eliminarlo", "INFORMACION",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (!e.getAnimaltratamientos().isEmpty()) {
+				JOptionPane.showMessageDialog(this, "El empleado tiene tratamientos en curso, no es posible eliminarlo", "INFORMACION",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			per.borrar(e);
+			JOptionPane.showMessageDialog(this, "Empleado borrador correctamente", "INFORMACION",
+					JOptionPane.INFORMATION_MESSAGE);
+			restablecerTodo();
+			buscar();
 
+		}else {
+			JOptionPane.showMessageDialog(this, "Debe selecionar un empleado a borrar", "INFORMACION",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
+		
+	}
 }

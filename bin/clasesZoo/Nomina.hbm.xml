@@ -6,7 +6,7 @@
     <class name="clasesZoo.Nomina" table="nomina" catalog="zoo">
         <id name="id" type="int">
             <column name="id" />
-            <generator class="assigned" />
+            <generator class="identity" />
         </id>
         <many-to-one name="empleado" class="clasesZoo.Empleado" fetch="select">
             <column name="idEmpleado" not-null="true" />

@@ -2,6 +2,7 @@ package interfaces;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.HeadlessException;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -9,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import clasesZoo.Zona;
+import persistencia.Persistencia;
 import persistencia.PersistenciaHibernate;
 
 import javax.swing.JLabel;
@@ -19,15 +21,15 @@ import java.awt.event.ActionEvent;
 
 public class FormZonas extends JDialog {
 	private JTextField textFieldDesc;
-	private PersistenciaHibernate per;
+	private Persistencia per;
 	
 	
 	
-	public FormZonas(PersistenciaHibernate per) {
+	public FormZonas(Persistencia per2) {
 		setResizable(false);
 		
 		setModal(true);
-		this.per=per;
+		this.per=per2;
 		setTitle("NUEVA ZONA");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
@@ -48,7 +50,12 @@ public class FormZonas extends JDialog {
 			JButton btnGuardar = new JButton("Guardar");
 			btnGuardar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					guardar();
+					try {
+						guardar();
+					}catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			});
 			btnGuardar.setBounds(316, 18, 108, 34);
@@ -66,7 +73,7 @@ public class FormZonas extends JDialog {
 			getContentPane().add(btnLimpiar);
 		}
 	}
-	private void guardar() {
+	private void guardar() throws HeadlessException, Exception {
 		Zona z=  new Zona();
 		String nuevaDesc= textFieldDesc.getText().trim();
 		if (nuevaDesc.equals("")) {

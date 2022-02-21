@@ -20,13 +20,14 @@ import javax.swing.table.DefaultTableModel;
 
 import clasesZoo.Especie;
 import clasesZoo.Zona;
+import persistencia.Persistencia;
 import persistencia.PersistenciaHibernate;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
 
 public class VentEspecie extends JDialog {
-	private PersistenciaHibernate per;
+	private Persistencia per;
 	private JButton btnNueva;
 	private JButton btnBorrar;
 	private JTextField textFieldDesc;
@@ -37,7 +38,7 @@ public class VentEspecie extends JDialog {
 	private JButton btnCancelar;
 	private JButton btnModifcar;
 
-	public VentEspecie(boolean modal, PersistenciaHibernate per) {
+	public VentEspecie(boolean modal, Persistencia per) {
 		setResizable(false);
 		setTitle("ESPECIES");
 
@@ -68,7 +69,12 @@ public class VentEspecie extends JDialog {
 		btnBorrar.setVisible(false);
 		btnBorrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				borrar();
+				try {
+					borrar();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 
 			}
 		});
@@ -85,7 +91,12 @@ public class VentEspecie extends JDialog {
 			btnBuscar = new JButton("Buscar");
 			btnBuscar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					buscar();
+					try {
+						buscar();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			});
 			btnBuscar.setBounds(439, 28, 108, 34);
@@ -128,7 +139,12 @@ public class VentEspecie extends JDialog {
 		btnModifcar = new JButton("Modificar");
 		btnModifcar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				guardar();
+				try {
+					guardar();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnModifcar.setVisible(false);
@@ -137,7 +153,7 @@ public class VentEspecie extends JDialog {
 
 	}
 
-	private void borrar() {
+	private void borrar() throws Exception {
 		if (table.getSelectedRow()!=-1) {
 			String desc = (String) dtm.getValueAt(table.getSelectedRow(), 1);
 			Especie e=(Especie)per.consultarUnico("Especie", desc);
@@ -172,7 +188,7 @@ public class VentEspecie extends JDialog {
 		dtm.setRowCount(0);
 	}
 
-	private void buscar() {
+	private void buscar() throws Exception {
 		mostrarBotones(true);
 		String desc = textFieldDesc.getText().trim();
 		rellenarTabla((List)per.consultarPorDesc("Especie", desc));
@@ -199,7 +215,7 @@ public class VentEspecie extends JDialog {
 
 	}
 
-	private void guardar() {
+	private void guardar() throws Exception {
 		if (table.getSelectedRow()!=-1) {
 			String desc= (String) dtm.getValueAt(table.getSelectedRow(), 1);
 			Especie e= (Especie)per.consultarUnico("Especie", desc);

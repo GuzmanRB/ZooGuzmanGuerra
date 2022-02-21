@@ -12,11 +12,13 @@ import org.hibernate.service.ServiceRegistryBuilder;
 import clasesZoo.Alimento;
 import clasesZoo.Animal;
 import clasesZoo.Empleado;
+import clasesZoo.Entrada;
 import clasesZoo.Especie;
+import clasesZoo.Evento;
 import clasesZoo.Tratamiento;
 import clasesZoo.Zona;
 
-public class PersistenciaHibernate {
+public class PersistenciaHibernate implements Persistencia{
 	Session sesion;
 
 	public PersistenciaHibernate() {
@@ -33,16 +35,18 @@ public class PersistenciaHibernate {
 		sesion.beginTransaction();
 		sesion.save(a);
 		sesion.getTransaction().commit();
+		sesion.refresh(a);
 		return true;
 	}
 	public boolean borrar(Object a) {
 		sesion.beginTransaction();
+		sesion.refresh(a);
 		sesion.delete(a);
 		sesion.getTransaction().commit();
 		return true;
 	}
 	
-	public List<Animal> consultarAnimal(String nombre, Integer especie) {
+	public List<Animal> consultarAnimales(String nombre, Integer especie) {
 		List<Animal> la;
 		Query q;
 		
@@ -122,6 +126,38 @@ public class PersistenciaHibernate {
 			le = q.list();
 		}
 
+		return le;
+	}
+
+	public Evento consultarEventoID(Integer id) {
+		Query q=sesion.createQuery("SELECT e FROM Evento e WHERE id=?");
+		q.setInteger(0, id);
+		Evento e=(Evento) q.uniqueResult();
+		return e;
+	}
+
+	public Evento consultarEventoUnico(String desc) {
+		// TODO Auto-generated method stub
+		Query q=sesion.createQuery("SELECT e FROM Evento e WHERE descripcion=?");
+		q.setString(0, desc);
+		Evento e=(Evento) q.uniqueResult();
+		return e;
+	}
+
+	public List<Evento> consultarEventos(String desc) {
+		// TODO Auto-generated method stub
+		List<Evento> le;
+		Query q=sesion.createQuery("SELECT e FROM Evento e WHERE descripcion LIKE '%"+desc+"%'");
+		le= q.list();
+		return le;
+	}
+
+	@Override
+	public List<Entrada> consultarEntradas(Integer id) throws Exception {
+		List<Entrada> le;
+		Query q=sesion.createQuery("SELECT e FROM Entrada e WHERE idEvento=? ORDER BY fechaHoraVenta");
+		q.setInteger(0, id);
+		le=q.list();
 		return le;
 	}
 }

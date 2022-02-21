@@ -2,6 +2,7 @@ package interfaces;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.HeadlessException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -13,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import clasesZoo.Animal;
+import clasesZoo.Empleado;
 import clasesZoo.Especie;
 import clasesZoo.Zona;
 import persistencia.Persistencia;
@@ -26,34 +28,35 @@ import javax.swing.SwingConstants;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class FormAnimal extends JDialog {
+public class FormEmpleado extends JDialog {
 	private JTextField textFieldNombre;
 	private JTextField textFieldFecha;
 	private JButton btnGuardar;
 	private JLabel lblNombre;
-	private JLabel lblEspecie;
-	private JComboBox cbEspecie;
+	private JLabel lblDireccion;
 	private JLabel lblFecha;
 	private JLabel lblFormato;
-	private JLabel lblZona;
-	private JComboBox cbZona;
 	private JButton btnLimpiar;
 	private Persistencia per;
+	private JTextField textFieldDireccion;
 
-	public FormAnimal(Persistencia per) {
+	public FormEmpleado(Persistencia per) {
 		
 		this.per=per;
 		setResizable(false);
 		setModal(true);
-		setTitle("NUEVO ANIMAL");
-		setBounds(100, 100, 569, 280);
+		setTitle("NUEVO EMPLEADO");
+		setBounds(100, 100, 569, 201);
 		getContentPane().setLayout(null);
 		
 		btnGuardar = new JButton("Guardar");
 		btnGuardar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					guardarAnimal();
+					guardarEmpleado();
+				} catch (HeadlessException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -72,13 +75,9 @@ public class FormAnimal extends JDialog {
 		getContentPane().add(textFieldNombre);
 		textFieldNombre.setColumns(10);
 		
-		lblEspecie = new JLabel("Especie");
-		lblEspecie.setBounds(20, 76, 46, 14);
-		getContentPane().add(lblEspecie);
-		
-		cbEspecie = new JComboBox();
-		cbEspecie.setBounds(80, 73, 246, 20);
-		getContentPane().add(cbEspecie);
+		lblDireccion = new JLabel("Direcci\u00F3n");
+		lblDireccion.setBounds(20, 76, 46, 14);
+		getContentPane().add(lblDireccion);
 		
 		lblFecha = new JLabel("Fecha Nac");
 		lblFecha.setBounds(20, 125, 61, 14);
@@ -94,116 +93,73 @@ public class FormAnimal extends JDialog {
 		lblFormato.setBounds(193, 125, 133, 14);
 		getContentPane().add(lblFormato);
 		
-		lblZona = new JLabel("Zona");
-		lblZona.setBounds(20, 181, 46, 14);
-		getContentPane().add(lblZona);
-		
-		cbZona = new JComboBox();
-		cbZona.setBounds(80, 178, 246, 20);
-		getContentPane().add(cbZona);
-		
 		btnLimpiar = new JButton("Limpiar");
 		btnLimpiar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				restablecerTodo();
 			}
 		});
-		btnLimpiar.setBounds(435, 171, 108, 34);
+		btnLimpiar.setBounds(435, 115, 108, 34);
 		getContentPane().add(btnLimpiar);
-		try {
-			rellenarEspecies();
-			rellenarZonas();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		
+		textFieldDireccion = new JTextField();
+		textFieldDireccion.setBounds(80, 73, 246, 20);
+		getContentPane().add(textFieldDireccion);
+		textFieldDireccion.setColumns(10);
 		textFieldNombre.grabFocus();
 	}
-	public void guardarAnimal() throws Exception {
-		Animal a= new Animal();
+	public void guardarEmpleado() throws HeadlessException, Exception {
+		Empleado e= new Empleado();
 		String nombre = textFieldNombre.getText().trim();
-		String especie = (String)cbEspecie.getSelectedItem();
+		String direccion = textFieldDireccion.getText().trim();
 		String fecha= textFieldFecha.getText().trim();
-		String zona=(String)cbZona.getSelectedItem();
 		
 		if (nombre.equals("")) {
 			JOptionPane.showMessageDialog(this, "Debe introducir un nombre", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
 			textFieldNombre.grabFocus();
 			return;
 		}
-		if (especie==null) {
-			JOptionPane.showMessageDialog(this, "Debe seleccionar una especie", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
-			cbEspecie.grabFocus();
+		if (direccion.equals("")) {
+			JOptionPane.showMessageDialog(this, "Debe introducir una dirección", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
+			textFieldDireccion.grabFocus();
 			return;
 		}
-		Especie esp= (Especie)per.consultarUnico("Especie", especie);
 		
-		if (per.conultarAnimalUnico(nombre, esp.getId())!=null) {
-			JOptionPane.showMessageDialog(this, "Ya existe un animal con ese nombre y especie", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
+		if (per.consultarEmpleadoUnico(nombre.toUpperCase(), direccion)!=null) {
+			JOptionPane.showMessageDialog(this, "Ya existe un empleado con ese nombre y dirección", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
 			textFieldNombre.grabFocus();
 			return;
 		}
-		if(zona==null) {
-			JOptionPane.showMessageDialog(this, "Debe selecionar una zona", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
-			cbZona.grabFocus();
-			return;
-		}
+
 		//Validamos fecha
-		if (fecha.equals("")) {
-			a.setFechaNac(null);
-		}else {
 			SimpleDateFormat sdf= new SimpleDateFormat("dd/MM/yyyy");
 			sdf.setLenient(false);
 			try {
 				Date d=sdf.parse(fecha);
-				a.setFechaNac(d);
-			} catch (ParseException e) {
-				JOptionPane.showMessageDialog(this, "Formato de la fecha incorrecto", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
+				e.setFechaNac(d);
+			} catch (ParseException p) {
+				JOptionPane.showMessageDialog(this, "Formato de la fecha incorrecto o vacío", "INFORMACION", JOptionPane.INFORMATION_MESSAGE);
 				textFieldFecha.grabFocus();
 				return;
 			}
-		}
 		
 		
-		Zona zon=(Zona)per.consultarUnico("Zona", zona);
 		
-		a.setNombre(nombre.toUpperCase());
-		a.setEspecie(esp);
-		a.setZona(zon);
-		per.guardar(a);
-		JOptionPane.showMessageDialog(this, "Animal guardado correctamente", "CORRECTO", JOptionPane.PLAIN_MESSAGE);
+		e.setNombre(nombre.toUpperCase());
+		e.setDireccion(direccion);
+		per.guardar(e);
+		JOptionPane.showMessageDialog(this, "Empleado guardado correctamente", "CORRECTO", JOptionPane.PLAIN_MESSAGE);
 		restablecerTodo();
 	}
 	private void restablecerTodo() {
 		// TODO Auto-generated method stub
 		
 		textFieldNombre.setText("");
+		textFieldDireccion.setText("");
 		textFieldFecha.setText("");
-		cbEspecie.setSelectedIndex(-1);
-		cbZona.setSelectedIndex(-1);
 		textFieldNombre.grabFocus();
 		
 	}
-	private void rellenarZonas() throws Exception {
-		List<Zona> lz =(List)per.consultarPorDesc("Zona", "");
-		
-		for (int i = 0; i < lz.size(); i++) {
-			cbZona.addItem(lz.get(i).getDescripcion());
-		}
-		cbZona.setSelectedIndex(-1);
-		
-	}
 
-	private void rellenarEspecies() throws Exception {
-		// TODO Auto-generated method stub
-		
-		List<Especie> le= (List)per.consultarPorDesc("Especie", "");
-		
-		for (int i = 0; i < le.size(); i++) {
-			cbEspecie.addItem(le.get(i).getDescripcion());
-			
-		}
-		cbEspecie.setSelectedIndex(-1);
-		
-	}
+
 }

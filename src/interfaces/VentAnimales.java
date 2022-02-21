@@ -16,8 +16,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import clasesZoo.Animal;
+import clasesZoo.Empleado;
 import clasesZoo.Especie;
 import clasesZoo.Zona;
+import persistencia.Persistencia;
 import persistencia.PersistenciaHibernate;
 
 import javax.swing.JLabel;
@@ -33,7 +35,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 public class VentAnimales extends JDialog {
-	private PersistenciaHibernate per;
+	private Persistencia per;
 	private JTextField textFieldNombre;
 	private JLabel lblNombre;
 	private JLabel lblEspecie;
@@ -49,15 +51,16 @@ public class VentAnimales extends JDialog {
 	private DefaultTableModel dtm;
 	private JButton btnModificar;
 	private JButton btnNuevo;
+	private JButton btnBorrar;
 
-	public VentAnimales(boolean modal, PersistenciaHibernate per) {
+	public VentAnimales(boolean modal, Persistencia per) {
 		setResizable(false);
 		
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setModal(modal);
 		setTitle("ANIMALES");
-		setBounds(100, 100, 524, 482);
+		setBounds(100, 100, 524, 493);
 		getContentPane().setLayout(null);
 		{
 			lblNombre = new JLabel("Nombre");
@@ -84,7 +87,12 @@ public class VentAnimales extends JDialog {
 		btnBuscar = new JButton("Buscar");
 		btnBuscar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				buscar();
+				try {
+					buscar();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnBuscar.setBounds(377, 18, 108, 34);
@@ -96,7 +104,7 @@ public class VentAnimales extends JDialog {
 				restablecerTodo();
 			}
 		});
-		btnCancelar.setBounds(377, 151, 108, 34);
+		btnCancelar.setBounds(377, 196, 108, 34);
 		getContentPane().add(btnCancelar);
 		
 		lblFechaNac = new JLabel("Fecha Nac");
@@ -126,7 +134,7 @@ public class VentAnimales extends JDialog {
 		cbZona.setVisible(false);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 221, 488, 211);
+		scrollPane.setBounds(10, 241, 488, 211);
 		getContentPane().add(scrollPane);
 		
 		table = new JTable();
@@ -144,7 +152,12 @@ public class VentAnimales extends JDialog {
 		btnModificar = new JButton("Modificar");
 		btnModificar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				guardarAnimal();
+				try {
+					guardarAnimal();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnModificar.setVisible(false);
@@ -163,6 +176,21 @@ public class VentAnimales extends JDialog {
 		table = new JTable(dtm);
 		scrollPane.setViewportView(table);
 		
+		btnBorrar = new JButton("Borrar");
+		btnBorrar.setVisible(false);
+		btnBorrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					borrar();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		btnBorrar.setBounds(377, 151, 108, 34);
+		getContentPane().add(btnBorrar);
+		
 		ListSelectionModel listSelectionModel= table.getSelectionModel();
 	    listSelectionModel.addListSelectionListener(new ListSelectionListener() {
 	        public void valueChanged(ListSelectionEvent e) {
@@ -177,8 +205,13 @@ public class VentAnimales extends JDialog {
 		
 		
 		
-		rellenarEspecies();
-		rellenarZonas();
+		try {
+			rellenarEspecies();
+			rellenarZonas();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		
 	}
@@ -194,7 +227,7 @@ public class VentAnimales extends JDialog {
 	}
 
 
-	public void guardarAnimal() {
+	public void guardarAnimal() throws Exception {
 		Animal a= per.consultarAnimalID((Integer)dtm.getValueAt(table.getSelectedRow(), 0));
 		
 		if (a!=null) {
@@ -230,6 +263,7 @@ public class VentAnimales extends JDialog {
 				a.setFechaNac(null);
 			}else {
 				SimpleDateFormat sdf= new SimpleDateFormat("dd/MM/yyyy");
+				sdf.setLenient(false);
 				try {
 					Date d=sdf.parse(fecha);
 					a.setFechaNac(d);
@@ -259,23 +293,17 @@ public class VentAnimales extends JDialog {
 		
 	}
 
-	public List<Animal> buscar() {
+	public List<Animal> buscar() throws Exception {
 		
 		List<Animal> animales;
 		
 		String desc=(String)cbEspecie.getSelectedItem();
 		if (desc!=null) {
 			Especie e= (Especie)per.consultarUnico("Especie", desc);
-			animales = per.consultarAnimal(textFieldNombre.getText().trim(),e.getId() );
+			animales = per.consultarAnimales(textFieldNombre.getText().trim(),e.getId() );
 		}else {
-			animales = per.consultarAnimal(textFieldNombre.getText().trim(),null );
+			animales = per.consultarAnimales(textFieldNombre.getText().trim(),null );
 			
-		}
-		
-		if (animales.isEmpty()) {
-			revelarCampos(false);
-		}else {
-			revelarCampos(true);
 		}
 		
 		rellenarTabla(animales);
@@ -290,11 +318,12 @@ public class VentAnimales extends JDialog {
 		textFieldFecha.setVisible(flag);
 		cbZona.setVisible(flag);
 		lblZonas.setVisible(flag);
-		
+		btnModificar.setVisible(flag);
+		btnBorrar.setVisible(flag);
 	}
 
 
-	private void rellenarZonas() {
+	private void rellenarZonas() throws Exception {
 		List<Zona> lz =(List)per.consultarPorDesc("Zona", "");
 		
 		for (int i = 0; i < lz.size(); i++) {
@@ -304,7 +333,7 @@ public class VentAnimales extends JDialog {
 		
 	}
 
-	private void rellenarEspecies() {
+	private void rellenarEspecies() throws Exception {
 		// TODO Auto-generated method stub
 		
 		List<Especie> le= (List)per.consultarPorDesc("Especie", "");
@@ -316,13 +345,13 @@ public class VentAnimales extends JDialog {
 		cbEspecie.setSelectedIndex(-1);
 		
 	}
-	public void rellenarDatos() {
+	public void rellenarDatos() throws Exception {
 		DefaultTableModel dtm= (DefaultTableModel) table.getModel();
 		if (table.getSelectedRow()!=-1) {
 			String Sid =String.valueOf(dtm.getValueAt(table.getSelectedRow(), 0));
 			Integer id= Integer.parseInt(Sid);
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-			btnModificar.setVisible(true);
+			revelarCampos(true);
 			Animal a=per.consultarAnimalID(id);
 			textFieldNombre.setText(a.getNombre());
 			if (a.getFechaNac()!=null) {
@@ -332,8 +361,8 @@ public class VentAnimales extends JDialog {
 			}
 			
 			
-			cbEspecie.setSelectedIndex(a.getEspecie().getId()-1);
-			cbZona.setSelectedIndex(a.getZona().getId()-1);
+			cbEspecie.setSelectedItem(a.getEspecie().getDescripcion());
+			cbZona.setSelectedItem(a.getZona().getDescripcion());
 		}
 		
 		
@@ -368,6 +397,34 @@ public class VentAnimales extends JDialog {
 		revelarCampos(false);
 		textFieldNombre.grabFocus();
 		btnModificar.setVisible(false);
+		btnBorrar.setVisible(false);
+		
+	}
+	private void borrar() throws Exception {
+		
+		if (table.getSelectedRow()>=0) {
+			Animal a= per.consultarAnimalID((Integer)dtm.getValueAt(table.getSelectedRow(), 0));
+			if (!a.getAnimaltratamientos().isEmpty()) {
+				JOptionPane.showMessageDialog(this, "El animal tiene tratamientos asociados, no es posible eliminarlo", "INFORMACION",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (!a.getConsumes().isEmpty()) {
+				JOptionPane.showMessageDialog(this, "El animal tiene alimentos asociados, no es posible eliminarlo", "INFORMACION",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+
+			per.borrar(a);
+			JOptionPane.showMessageDialog(this, "Animal borrador correctamente", "INFORMACION",
+					JOptionPane.INFORMATION_MESSAGE);
+			restablecerTodo();
+			buscar();
+
+		}else {
+			JOptionPane.showMessageDialog(this, "Debe selecionar un animal a borrar", "INFORMACION",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
 		
 	}
 }

@@ -2,6 +2,7 @@ package interfaces;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.HeadlessException;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -11,6 +12,7 @@ import javax.swing.border.EmptyBorder;
 import clasesZoo.Alimento;
 import clasesZoo.Tratamiento;
 import clasesZoo.Zona;
+import persistencia.Persistencia;
 import persistencia.PersistenciaHibernate;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -19,13 +21,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class FormCuidados extends JDialog {
-	private PersistenciaHibernate per;
+	private Persistencia per;
 	private JTextField textFieldDesc;
 	private JTextField textFieldCoste;
 	private String tipoVentana;
 
 
-	public FormCuidados(String tipoVentana, PersistenciaHibernate per) {
+	public FormCuidados(String tipoVentana, Persistencia per) {
 		
 		this.per=per;
 		this.tipoVentana=tipoVentana;
@@ -60,7 +62,15 @@ public class FormCuidados extends JDialog {
 		JButton btnGuardar = new JButton("Guardar");
 		btnGuardar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				guardar();
+				try {
+					guardar();
+				} catch (HeadlessException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnGuardar.setBounds(326, 23, 108, 34);
@@ -83,7 +93,7 @@ public class FormCuidados extends JDialog {
 		
 	}
 
-	private void guardar() {
+	private void guardar() throws HeadlessException, Exception {
 		Alimento a=  new Alimento();
 		Tratamiento t= new Tratamiento();
 		Object o= new Object();

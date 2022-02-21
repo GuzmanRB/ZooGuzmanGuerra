@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import persistencia.Persistencia;
 import persistencia.PersistenciaHibernate;
 
 import javax.swing.JMenuBar;
@@ -18,7 +19,7 @@ import java.awt.event.ActionEvent;
 public class Principal extends JFrame {
 
 	private JPanel contentPane;
-	private PersistenciaHibernate per= new PersistenciaHibernate();
+	private Persistencia per= new PersistenciaHibernate();
 
 	/**
 	 * Launch the application.
@@ -82,6 +83,12 @@ public class Principal extends JFrame {
 		menuBar.add(mPersonal);
 		
 		JMenuItem mIEmpleados = new JMenuItem("Empleados");
+		mIEmpleados.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				VentEmpleados ve= new VentEmpleados(per);
+				ve.setVisible(true);
+			}
+		});
 		mPersonal.add(mIEmpleados);
 		
 		JMenuItem mINominas = new JMenuItem("Nominas");
@@ -111,10 +118,22 @@ public class Principal extends JFrame {
 		JMenu mVentas = new JMenu("Ventas");
 		menuBar.add(mVentas);
 		
-		JMenuItem mIEntradas = new JMenuItem("Entredas");
+		JMenuItem mIEntradas = new JMenuItem("Entradas");
+		mIEntradas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				VentEntradas ve= new VentEntradas(per);
+				ve.setVisible(true);
+			}
+		});
 		mVentas.add(mIEntradas);
 		
 		JMenuItem mIEventos = new JMenuItem("Eventos");
+		mIEventos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				VentEventos ve= new VentEventos(per);
+				ve.setVisible(true);
+			}
+		});
 		mVentas.add(mIEventos);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

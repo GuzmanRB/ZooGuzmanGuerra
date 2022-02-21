@@ -15,6 +15,7 @@ import clasesZoo.Alimento;
 import clasesZoo.Especie;
 import clasesZoo.Tratamiento;
 import clasesZoo.Zona;
+import persistencia.Persistencia;
 import persistencia.PersistenciaHibernate;
 
 import javax.swing.JLabel;
@@ -38,14 +39,14 @@ public class VentCuidados extends JDialog {
 	private JButton btnBuscar;
 	private JScrollPane scrollPane;
 	private JLabel lblDescripcion;
-	private  PersistenciaHibernate per;
+	private  Persistencia per;
 	private DefaultTableModel dtm;
 	private JLabel lblCoste;
 	private JTextField textFieldCoste;
 	private String tipoVentana;
 
 
-	public VentCuidados( String tipoVentana, PersistenciaHibernate per) {
+	public VentCuidados( String tipoVentana, Persistencia per) {
 		
 		this.tipoVentana=tipoVentana;
 		setTitle(tipoVentana.toUpperCase());
@@ -69,7 +70,12 @@ public class VentCuidados extends JDialog {
 			btnBuscar = new JButton("Buscar");
 			btnBuscar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					buscar();
+					try {
+						buscar();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			});
 			btnBuscar.setBounds(432, 21, 108, 34);
@@ -99,7 +105,12 @@ public class VentCuidados extends JDialog {
 			btnModificar = new JButton("Modificar");
 			btnModificar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					guardar();
+					try {
+						guardar();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			});
 			btnModificar.setVisible(false);
@@ -120,7 +131,12 @@ public class VentCuidados extends JDialog {
 			btnBorrar = new JButton("Borrar");
 			btnBorrar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					borrar();
+					try {
+						borrar();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			});
 			btnBorrar.setVisible(false);
@@ -163,7 +179,7 @@ public class VentCuidados extends JDialog {
 
 
 
-	private void borrar() {
+	private void borrar() throws Exception {
 
 		if (table.getSelectedRow()!=-1) {
 			
@@ -196,7 +212,7 @@ public class VentCuidados extends JDialog {
 		}
 		
 	}
-	private void buscar() {
+	private void buscar() throws Exception {
 		mostrarBotones(true);
 		String desc = textFieldDesc.getText().trim();
 		rellenarTabla((List)per.consultarPorDesc(tipoVentana, desc));
@@ -247,7 +263,7 @@ public class VentCuidados extends JDialog {
 		mostrarBotones(false);
 		dtm.setRowCount(0);
 	}
-	private void guardar() {
+	private void guardar() throws Exception {
 		if (table.getSelectedRow()!=-1) {
 			String desc= (String) dtm.getValueAt(table.getSelectedRow(), 1);
 			Object o= per.consultarUnico(tipoVentana, desc);
