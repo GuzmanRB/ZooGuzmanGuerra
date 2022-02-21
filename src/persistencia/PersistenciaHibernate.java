@@ -11,6 +11,7 @@ import org.hibernate.service.ServiceRegistryBuilder;
 
 import clasesZoo.Alimento;
 import clasesZoo.Animal;
+import clasesZoo.Empleado;
 import clasesZoo.Especie;
 import clasesZoo.Tratamiento;
 import clasesZoo.Zona;
@@ -91,4 +92,36 @@ public class PersistenciaHibernate {
 		return la;
 	}
 
+	public Empleado consultarEmpleadoID(Integer id) {
+		Query q=sesion.createQuery("SELECT e FROM Empleado e WHERE id=?");
+		q.setInteger(0, id);
+		Empleado e=(Empleado) q.uniqueResult();
+		return e;
+	}
+
+	public Empleado consultarEmpleadoUnico(String nombre, String direccion) {
+		// TODO Auto-generated method stub
+		Query q = sesion.createQuery("SELECT e FROM Empleado e WHERE nombre=? AND direccion=?");
+		q.setString(0, nombre);
+		q.setString(1, direccion);
+		Empleado e=(Empleado)q.uniqueResult();
+		
+		return e;
+	}
+	public List<Empleado> consultarEmpleados(String nombre, String direccion) {
+		List<Empleado> le;
+		Query q;
+		
+		if (direccion.equalsIgnoreCase("")) {
+			q = sesion.createQuery("SELECT a FROM Empleado a WHERE nombre LIKE '%"+nombre+"%'");
+			le = q.list();
+		}else {
+			q = sesion.createQuery("SELECT a FROM Empleado a WHERE nombre LIKE '%"+nombre+"%' AND direccion=?");
+			
+			q.setString(0, direccion);
+			le = q.list();
+		}
+
+		return le;
+	}
 }
