@@ -36,5 +36,7 @@ public interface Persistencia {
 	
 	//METODOS DE ENTRADAS
 	public List<Entrada> consultarEntradas(Integer id) throws Exception;
+	public Entrada consultarEntradaID(Integer id) throws Exception;
+	public void borrarEntrada(Entrada e) throws Exception;
 
 }
