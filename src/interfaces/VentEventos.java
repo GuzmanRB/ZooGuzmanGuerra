@@ -269,7 +269,7 @@ public class VentEventos extends JDialog {
 
 				DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 				e.setDescripcion(desc.toUpperCase());
-				if (per.guardar(e)) {
+				if (per.guardar(e,"")) {
 					JOptionPane.showMessageDialog(this, "Evento modificado correctamente", "CORRECTO",
 							JOptionPane.PLAIN_MESSAGE);
 					restablecerTodo();
@@ -393,7 +393,7 @@ public class VentEventos extends JDialog {
 						JOptionPane.WARNING_MESSAGE);
 				return;
 			}
-			per.borrar(e);
+			per.borrar(e,"");
 			JOptionPane.showMessageDialog(this, "Evento borrador correctamente", "INFORMACION",
 					JOptionPane.INFORMATION_MESSAGE);
 			restablecerTodo();

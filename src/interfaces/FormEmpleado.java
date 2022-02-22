@@ -147,7 +147,7 @@ public class FormEmpleado extends JDialog {
 		
 		e.setNombre(nombre.toUpperCase());
 		e.setDireccion(direccion);
-		per.guardar(e);
+		per.guardar(e,"");
 		JOptionPane.showMessageDialog(this, "Empleado guardado correctamente", "CORRECTO", JOptionPane.PLAIN_MESSAGE);
 		restablecerTodo();
 	}

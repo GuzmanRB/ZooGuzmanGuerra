@@ -233,7 +233,7 @@ public class VentEmpleados extends JDialog {
 				DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 				e.setNombre(nombre.toUpperCase());
 				e.setDireccion(direccion);
-				if (per.guardar(e)) {
+				if (per.guardar(e,"")) {
 					JOptionPane.showMessageDialog(this, "Empleado modificado correctamente", "CORRECTO",
 							JOptionPane.PLAIN_MESSAGE);
 					restablecerTodo();
@@ -359,7 +359,7 @@ public class VentEmpleados extends JDialog {
 						JOptionPane.WARNING_MESSAGE);
 				return;
 			}
-			per.borrar(e);
+			per.borrar(e,"");
 			JOptionPane.showMessageDialog(this, "Empleado borrador correctamente", "INFORMACION",
 					JOptionPane.INFORMATION_MESSAGE);
 			restablecerTodo();

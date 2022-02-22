@@ -200,7 +200,7 @@ public class VentZonas extends JDialog {
 			Zona z=(Zona)per.consultarUnico("Zona", desc);
 			if (z.getAnimals().isEmpty()) {
 				if (z.getEmpleados().isEmpty()) {
-					per.borrar(z);
+					per.borrar(z,"");
 					JOptionPane.showMessageDialog(this, "Zona borrada correctamente", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
 					textFieldDesc.setText("");
 					buscar();
@@ -233,7 +233,7 @@ public class VentZonas extends JDialog {
 				return;
 			}else {
 				z.setDescripcion(nuevaDesc);
-				if (per.guardar(z)) {
+				if (per.guardar(z,"")) {
 					JOptionPane.showMessageDialog(this, "Zona modificada correctamente.", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
 					textFieldDesc.setText("");
 					buscar();

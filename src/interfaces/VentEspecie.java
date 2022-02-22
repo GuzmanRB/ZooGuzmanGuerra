@@ -158,7 +158,7 @@ public class VentEspecie extends JDialog {
 			String desc = (String) dtm.getValueAt(table.getSelectedRow(), 1);
 			Especie e=(Especie)per.consultarUnico("Especie", desc);
 			if (e.getAnimals().isEmpty()) {
-				per.borrar(e);
+				per.borrar(e,"");
 				JOptionPane.showMessageDialog(this, "Especie borrada correctamente", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
 				textFieldDesc.setText("");
 				buscar();
@@ -230,7 +230,7 @@ public class VentEspecie extends JDialog {
 				return;
 			}else {
 				e.setDescripcion(nuevaDesc);
-				if (per.guardar(e)) {
+				if (per.guardar(e,"")) {
 					JOptionPane.showMessageDialog(this, "Especie modificada correctamente.", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
 					textFieldDesc.setText("");
 					buscar();

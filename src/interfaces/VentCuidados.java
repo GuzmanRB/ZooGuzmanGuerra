@@ -188,7 +188,7 @@ public class VentCuidados extends JDialog {
 			Alimento a=(Alimento)per.consultarUnico("Alimento", desc);
 			
 			if (a.getConsumes().isEmpty()) {
-				per.borrar(a);
+				per.borrar(a,"");
 				JOptionPane.showMessageDialog(this, tipoVentana+" borrado correctamente", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
 				textFieldCoste.setText("");
 				textFieldDesc.setText("");
@@ -300,7 +300,7 @@ public class VentCuidados extends JDialog {
 					o=a;
 				}
 
-				if (per.guardar(o)) {
+				if (per.guardar(o,"")) {
 					JOptionPane.showMessageDialog(this, tipoVentana+" modificado correctamente.", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
 					textFieldCoste.setText("");
 					textFieldDesc.setText("");

@@ -90,7 +90,7 @@ public class FormEspecies extends JDialog {
 			return;
 		}else {
 			e.setDescripcion(nuevaDesc.toUpperCase());
-			if (per.guardar(e)) {
+			if (per.guardar(e,"")) {
 				JOptionPane.showMessageDialog(this, "Especie guardada correctamente", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
 				textFieldDesc.setText("");
 				textFieldDesc.grabFocus();
