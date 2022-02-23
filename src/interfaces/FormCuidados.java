@@ -129,7 +129,7 @@ public class FormCuidados extends JDialog {
 				o=a;
 			}
 
-			if (per.guardar(o)) {
+			if (per.guardar(o,"")) {
 				JOptionPane.showMessageDialog(this, tipoVentana+" guardado correctamente", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
 				limpiar();
 			}else {

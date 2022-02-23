@@ -15,6 +15,7 @@ import clasesZoo.Empleado;
 import clasesZoo.Entrada;
 import clasesZoo.Especie;
 import clasesZoo.Evento;
+import clasesZoo.Nomina;
 import clasesZoo.Tratamiento;
 import clasesZoo.Zona;
 
@@ -31,21 +32,26 @@ public class PersistenciaHibernate implements Persistencia{
 		sesion = sessionFactory.openSession();
 	}
 
-	public boolean guardar(Object a) {
+	public boolean guardar(Object a,String tabla) {
 		sesion.beginTransaction();
 		sesion.save(a);
 		sesion.getTransaction().commit();
 		sesion.refresh(a);
 		return true;
 	}
-	public boolean borrar(Object a) {
+	public boolean borrar(Object a, String tabla) {
 		sesion.beginTransaction();
-		sesion.refresh(a);
 		sesion.delete(a);
 		sesion.getTransaction().commit();
 		return true;
 	}
-	
+	//REFRESCAR OBJETOS
+	public void refresh(Object o, String tabla) throws Exception {
+		sesion.beginTransaction();
+		sesion.refresh(o);
+		sesion.getTransaction().commit();
+		
+	}
 	public List<Animal> consultarAnimales(String nombre, Integer especie) {
 		List<Animal> la;
 		Query q;
@@ -117,12 +123,11 @@ public class PersistenciaHibernate implements Persistencia{
 		Query q;
 		
 		if (direccion.equalsIgnoreCase("")) {
-			q = sesion.createQuery("SELECT a FROM Empleado a WHERE nombre LIKE '%"+nombre+"%'");
+			q = sesion.createQuery("SELECT a FROM Empleado a WHERE nombre LIKE '%"+nombre+"%' ORDER BY nombre");
 			le = q.list();
 		}else {
-			q = sesion.createQuery("SELECT a FROM Empleado a WHERE nombre LIKE '%"+nombre+"%' AND direccion=?");
+			q = sesion.createQuery("SELECT a FROM Empleado a WHERE nombre LIKE '%"+nombre+"%' AND direccion LIKE '%"+direccion+"%' ORDER BY nombre");
 			
-			q.setString(0, direccion);
 			le = q.list();
 		}
 
@@ -155,9 +160,37 @@ public class PersistenciaHibernate implements Persistencia{
 	@Override
 	public List<Entrada> consultarEntradas(Integer id) throws Exception {
 		List<Entrada> le;
-		Query q=sesion.createQuery("SELECT e FROM Entrada e WHERE idEvento=? ORDER BY fechaHoraVenta");
+		Query q=sesion.createQuery("SELECT e FROM Entrada e WHERE idEvento=? ORDER BY fechaHoraVenta DESC");
 		q.setInteger(0, id);
 		le=q.list();
 		return le;
 	}
+
+	@Override
+	public Entrada consultarEntradaID(Integer id) throws Exception {
+		Entrada entrada;
+		Query q= sesion.createQuery("SELECT e FROM Entrada e WHERE id=?");
+		q.setInteger(0, id);
+		entrada=(Entrada) q.uniqueResult();
+		return entrada;
+	}
+
+	@Override
+	public List<Nomina> consultarNominasPorEmpleado(Integer id) throws Exception {
+		List<Nomina> ln;
+		Query q=sesion.createQuery("SELECT e FROM Nomina e WHERE idEmpleado=? ORDER BY fechaEmision DESC");
+		q.setInteger(0, id);
+		ln=q.list();
+		return ln;
+	}
+
+	@Override
+	public Nomina consultarNominaID(Integer id) throws Exception {
+		Nomina n ;
+		Query q=sesion.createQuery("SELECT n FROM Nomina n WHERE id=?");
+		n=(Nomina)q.uniqueResult();
+		return n;
+	}
+
+
 }

@@ -187,7 +187,7 @@ public class FormEvento extends JDialog {
 		}
 		
 		e.setDescripcion(desc.toUpperCase());
-		per.guardar(e);
+		per.guardar(e,"");
 		JOptionPane.showMessageDialog(this, "Evento guardado correctamente", "CORRECTO", JOptionPane.PLAIN_MESSAGE);
 		restablecerTodo();
 	}

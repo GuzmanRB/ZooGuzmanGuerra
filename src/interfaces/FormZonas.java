@@ -86,7 +86,7 @@ public class FormZonas extends JDialog {
 			return;
 		}else {
 			z.setDescripcion(nuevaDesc.toUpperCase());
-			if (per.guardar(z)) {
+			if (per.guardar(z,"")) {
 				JOptionPane.showMessageDialog(this, "Zona guardada correctamente", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
 				textFieldDesc.setText("");
 				textFieldDesc.grabFocus();

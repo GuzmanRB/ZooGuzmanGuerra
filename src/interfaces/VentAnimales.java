@@ -282,7 +282,7 @@ public class VentAnimales extends JDialog {
 			a.setNombre(nombre.toUpperCase());
 			a.setEspecie(esp);
 			a.setZona(zon);
-			if (per.guardar(a)) {
+			if (per.guardar(a,"")) {
 				JOptionPane.showMessageDialog(this, "Animal modificado correctamente", "CORRECTO", JOptionPane.PLAIN_MESSAGE);
 				restablecerTodo();
 			}else {
@@ -415,7 +415,7 @@ public class VentAnimales extends JDialog {
 				return;
 			}
 
-			per.borrar(a);
+			per.borrar(a,"");
 			JOptionPane.showMessageDialog(this, "Animal borrador correctamente", "INFORMACION",
 					JOptionPane.INFORMATION_MESSAGE);
 			restablecerTodo();

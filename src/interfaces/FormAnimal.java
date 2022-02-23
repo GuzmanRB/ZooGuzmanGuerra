@@ -170,7 +170,7 @@ public class FormAnimal extends JDialog {
 		a.setNombre(nombre.toUpperCase());
 		a.setEspecie(esp);
 		a.setZona(zon);
-		per.guardar(a);
+		per.guardar(a,"");
 		JOptionPane.showMessageDialog(this, "Animal guardado correctamente", "CORRECTO", JOptionPane.PLAIN_MESSAGE);
 		restablecerTodo();
 	}

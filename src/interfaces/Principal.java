@@ -92,6 +92,12 @@ public class Principal extends JFrame {
 		mPersonal.add(mIEmpleados);
 		
 		JMenuItem mINominas = new JMenuItem("Nominas");
+		mINominas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				VentNominas vn= new VentNominas(per);
+				vn.setVisible(true);
+			}
+		});
 		mPersonal.add(mINominas);
 		
 		JMenu mCuidados = new JMenu("Cuidados");
