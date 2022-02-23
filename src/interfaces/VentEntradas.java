@@ -135,19 +135,6 @@ public class VentEntradas extends JDialog {
 		getContentPane().add(scrollPane);
 		
 		btnEliminar = new JButton("Eliminar");
-		btnEliminar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					borrarEntrada();
-				} catch (NumberFormatException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		});
 		btnEliminar.setEnabled(false);
 		btnEliminar.setBounds(10, 391, 108, 34);
 		getContentPane().add(btnEliminar);
@@ -165,7 +152,6 @@ public class VentEntradas extends JDialog {
 		dtm= new DefaultTableModel();
 		
 		dtm.addColumn("FECHA / HORA");
-		dtm.addColumn("ID");
 		dtm.addColumn("EVENTO");
 
 		
@@ -191,17 +177,6 @@ public class VentEntradas extends JDialog {
 	
 	
 	
-	private void borrarEntrada() throws NumberFormatException, Exception {
-		if (table.getSelectedRow()>=0) {
-			Entrada e= per.consultarEntradaID(Integer.valueOf(String.valueOf(dtm.getValueAt(table.getSelectedRow(), 1))));
-			per.borrarEntrada(e);
-		}
-		
-	}
-
-
-
-
 	private void guardarCompras() throws Exception {
 		Integer ent;
 		String desc=(String)cbEventos.getSelectedItem();
@@ -240,15 +215,14 @@ public class VentEntradas extends JDialog {
 		
 		List<Entrada> ent=per.consultarEntradas(evento.getId());
 		
-		Object[] datos= new Object[3];
+		Object[] datos= new Object[2];
 		
 		SimpleDateFormat sdf= new SimpleDateFormat("dd/MM/YYYY HH:mm");
 		sdf.setLenient(false);
 		
 		for (int i = 0; i < ent.size(); i++) {
 			datos[0]=sdf.format(ent.get(i).getFechaHoraVenta());
-			datos[1]=ent.get(i).getId();
-			datos[2]=ent.get(i).getEvento().getDescripcion();
+			datos[1]=ent.get(i).getEvento().getDescripcion();
 			dtm.addRow(datos);
 		}
 		

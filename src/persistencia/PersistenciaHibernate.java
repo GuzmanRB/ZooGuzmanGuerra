@@ -155,29 +155,9 @@ public class PersistenciaHibernate implements Persistencia{
 	@Override
 	public List<Entrada> consultarEntradas(Integer id) throws Exception {
 		List<Entrada> le;
-		Query q=sesion.createQuery("SELECT e FROM Entrada e WHERE idEvento=? ORDER BY fechaHoraVenta DESC");
+		Query q=sesion.createQuery("SELECT e FROM Entrada e WHERE idEvento=? ORDER BY fechaHoraVenta");
 		q.setInteger(0, id);
 		le=q.list();
 		return le;
 	}
-
-	@Override
-	public Entrada consultarEntradaID(Integer id) throws Exception {
-		Entrada e;
-		Query q=sesion.createQuery("SELECT e FROM Entrada e WHERE id=?");
-		q.setInteger(0, id);
-		e=(Entrada) q.uniqueResult();
-		return e;
-	}
-
-	@Override
-	public void borrarEntrada(Entrada e) throws Exception {
-		Evento evento = consultarEventoID(e.getEvento().getId());
-		sesion.beginTransaction();
-		sesion.delete(e);
-		sesion.getTransaction().commit();
-		sesion.refresh(evento);
-		
-	}
-	
 }
