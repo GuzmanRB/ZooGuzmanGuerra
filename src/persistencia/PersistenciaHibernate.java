@@ -5,6 +5,7 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
@@ -21,6 +22,7 @@ import clasesZoo.Zona;
 
 public class PersistenciaHibernate implements Persistencia{
 	Session sesion;
+	Transaction transaccion;
 
 	public PersistenciaHibernate() {
 		SessionFactory sessionFactory;
@@ -188,9 +190,56 @@ public class PersistenciaHibernate implements Persistencia{
 	public Nomina consultarNominaID(Integer id) throws Exception {
 		Nomina n ;
 		Query q=sesion.createQuery("SELECT n FROM Nomina n WHERE id=?");
+		q.setInteger(0, id);
 		n=(Nomina)q.uniqueResult();
 		return n;
 	}
+
+	@Override
+	public void guardarSinCommit(Object o) throws Exception {
+		if (transaccion==null || !transaccion.isActive()) {
+			sesion.beginTransaction();
+			
+		}
+		sesion.save(o);
+		transaccion=sesion.getTransaction();
+		
+		
+		
+	}
+
+	@Override
+	public void borrarSinCommit(Object o) throws Exception {
+		if (transaccion==null || !transaccion.isActive()) {
+			sesion.beginTransaction();
+			
+		}
+		sesion.delete(o);
+		transaccion=sesion.getTransaction();
+		
+		
+	}
+
+	@Override
+	public void transaccionCommit() throws Exception {
+		// TODO Auto-generated method stub
+		if (transaccion!=null && transaccion.isActive()) {
+			transaccion.commit();
+		}
+		
+		
+	}
+
+	@Override
+	public void transaccionRollback() throws Exception {
+		// TODO Auto-generated method stub
+		if (transaccion!=null && transaccion.isActive()) {
+			transaccion.rollback();
+		}
+		
+		
+	}
+	
 
 
 }

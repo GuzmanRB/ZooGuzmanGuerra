@@ -29,6 +29,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
 import javax.swing.JSeparator;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class VentNominas extends JDialog {
 	private JTextField textFieldNombre;
@@ -38,14 +40,11 @@ public class VentNominas extends JDialog {
 	private JTable table_1;
 	private JScrollPane scrollPane_1;
 	private JButton btnNueva;
-	private JButton btnModificar;
 	private JButton btnBorrar;
 	private JButton btnCancelar;
 	private JButton btnSeleccionar;
 	private JScrollPane scrollPane;
 	private JButton btnGuardarTodo;
-	private List<Nomina> nomEliminar=new ArrayList<Nomina>();
-	private List<Nomina> nomGuardarMod=new ArrayList<Nomina>();
 	private JLabel lblFecha;
 	private JTextField textFieldFecha;
 	private JLabel lblFormato;
@@ -55,10 +54,26 @@ public class VentNominas extends JDialog {
 	private JTextField textFieldIRPF;
 	private JLabel lblSegS;
 	private JTextField textFieldSegS;
-	private JButton btnGuardar;
+	private JButton btnCrear;
 	private JButton btnVolver;
+	private JTextField textFieldID;
 
 	public VentNominas(Persistencia per) {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent e) {
+
+			}
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					per.transaccionRollback();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		setTitle("N\u00D3MINAS");
 		setResizable(false);
 		this.per = per;
@@ -115,41 +130,42 @@ public class VentNominas extends JDialog {
 				nuevaNomina();
 			}
 		});
-		btnNueva.setBounds(20, 468, 108, 34);
+		btnNueva.setBounds(20, 513, 108, 34);
 		getContentPane().add(btnNueva);
 
-		btnModificar = new JButton("Modificar");
-		btnModificar.addActionListener(new ActionListener() {
+
+
+		btnBorrar = new JButton("Borrar");
+		btnBorrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				nuevaNomina();
 				try {
-					modificar();
+					eliminar();
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-
 			}
 		});
-		btnModificar.setEnabled(false);
-		btnModificar.setBounds(20, 513, 108, 34);
-		getContentPane().add(btnModificar);
-
-		btnBorrar = new JButton("Borrar");
 		btnBorrar.setEnabled(false);
 		btnBorrar.setBounds(229, 513, 108, 34);
 		getContentPane().add(btnBorrar);
 
 		btnCancelar = new JButton("Cancelar");
+		btnCancelar.setEnabled(false);
 		btnCancelar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				restablecerTodo();
+				try {
+					restablecerTodo();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnCancelar.setBounds(343, 513, 108, 34);
 		getContentPane().add(btnCancelar);
 
-		btnGuardarTodo = new JButton("Guardar Todo");
+		btnGuardarTodo = new JButton("Guardar");
 		btnGuardarTodo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -208,24 +224,23 @@ public class VentNominas extends JDialog {
 		textFieldSegS.setBounds(646, 378, 86, 20);
 		getContentPane().add(textFieldSegS);
 
-		btnGuardar = new JButton("Guardar");
-		btnGuardar.addActionListener(new ActionListener() {
+		btnCrear = new JButton("Crear");
+		btnCrear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if (guardar()) {
-						restablecerCamposNuevoNomina();
+					if (crear()) {
+						volver();
 					}
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
 
 			}
 		});
-		btnGuardar.setEnabled(false);
-		btnGuardar.setBounds(744, 513, 96, 34);
-		getContentPane().add(btnGuardar);
+		btnCrear.setEnabled(false);
+		btnCrear.setBounds(744, 513, 96, 34);
+		getContentPane().add(btnCrear);
 
 		// CREANDO TABLA EMPLEADOS
 		dtm = new DefaultTableModel();
@@ -268,15 +283,19 @@ public class VentNominas extends JDialog {
 		btnVolver = new JButton("Volver");
 		btnVolver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				habilitarCamposNomina(true);
-				hablitarCamposNuevaNomina(false);
-				restablecerCamposNuevoNomina();
-
+				volver();
 			}
 		});
 		btnVolver.setEnabled(false);
 		btnVolver.setBounds(508, 513, 108, 34);
 		getContentPane().add(btnVolver);
+
+		textFieldID = new JTextField();
+		textFieldID.setEnabled(false);
+		textFieldID.setEditable(false);
+		textFieldID.setBounds(646, 409, 86, 20);
+		getContentPane().add(textFieldID);
+		textFieldID.setColumns(10);
 
 		ListSelectionModel listSelectionModel1 = table_1.getSelectionModel();
 		listSelectionModel1.addListSelectionListener(new ListSelectionListener() {
@@ -284,10 +303,9 @@ public class VentNominas extends JDialog {
 				try {
 
 					if (table_1.getSelectedRow() >= 0) {
-						btnModificar.setEnabled(true);
 						btnBorrar.setEnabled(true);
 					} else {
-						btnModificar.setEnabled(false);
+						
 						btnBorrar.setEnabled(false);
 					}
 
@@ -342,29 +360,38 @@ public class VentNominas extends JDialog {
 		}
 	}
 
-	private void guardarTodo() throws Exception {
-		if (!nomGuardarMod.isEmpty()) {
-			for (int i = 0; i < nomGuardarMod.size(); i++) {
-				Nomina n = nomGuardarMod.get(i);
-				per.guardar(n, "");
-			}
-		}
-		if (!nomEliminar.isEmpty()) {
-			for (int i = 0; i < nomEliminar.size(); i++) {
-				Nomina n = nomEliminar.get(i);
-				Empleado e = n.getEmpleado();
-				per.borrar(n, "");
-				per.refresh(e, "");
-			}
-		}
+	private void eliminar() throws Exception {
+		Nomina n = per.consultarNominaID((Integer)dtm1.getValueAt(table_1.getSelectedRow(), 1));
+		per.borrarSinCommit(n);
+		btnGuardarTodo.setEnabled(true);
+		rellenarTablaNomina();
+		
+	}
+
+	private void volver() {
+		// TODO Auto-generated method stub
+		habilitarCamposNomina(true);
+		hablitarCamposNuevaNomina(false);
+		restablecerCamposNuevoNomina();
 
 	}
 
-	// METEDO PARA GUARDAR O MODIFCAR NOMINA
-	private boolean guardar() throws Exception {
+	private void guardarTodo() throws Exception {
+		
+		per.transaccionCommit();
+		JOptionPane.showMessageDialog(this, "Cambios guardados", "AVISO", JOptionPane.INFORMATION_MESSAGE);
+		restablecerTodo();
 
+	}
+
+	// METEDO PARA CREAR NOMINA
+	private boolean crear() throws Exception {
+		Nomina n;
+		Integer id;
 		Double importe, irpf, ss;
 		Date d = null;
+		
+
 		if (validarCampos()) {
 			String fecha = textFieldFecha.getText().trim();
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -379,20 +406,19 @@ public class VentNominas extends JDialog {
 			irpf = Double.valueOf(textFieldIRPF.getText().trim());
 			ss = Double.valueOf(textFieldSegS.getText().trim());
 
-			Empleado e = per.consultarEmpleadoID((Integer) dtm.getValueAt(table.getSelectedRow(), 0));
-			
-			Nomina n = new Nomina();
-			n.setFechaEmision(d);
-			n.setImporteBruto(importe);
-			n.setIrpf(irpf);
-			n.setSegSocial(ss);
-			n.setEmpleado(e);
-			nomGuardarMod.add(n);
-			insertarFilaNominaTabla(n);
-			return true;
-		}else {
-			return false;
-		}
+				Empleado e = per.consultarEmpleadoID((Integer) dtm.getValueAt(table.getSelectedRow(), 0));
+				n = new Nomina();
+				n.setFechaEmision(d);
+				n.setImporteBruto(importe);
+				n.setIrpf(irpf);
+				n.setSegSocial(ss);
+				n.setEmpleado(e);
+				per.guardarSinCommit(n);
+				rellenarTablaNomina();
+				return true;
+			}else {
+				return false;
+			}
 
 	}
 
@@ -469,37 +495,27 @@ public class VentNominas extends JDialog {
 		return true;
 	}
 
-	private void modificar() throws Exception {
-		// TODO Auto-generated method stub
-		if (table_1.getSelectedRow() >= 0) {
-			Integer id = (Integer) dtm1.getValueAt(table_1.getSelectedRow(), 1);
-			Nomina n = per.consultarNominaID(id);
-			rellenarCamposNomina(n);
-
-		}
-
-	}
-
-	private void rellenarCamposNomina(Nomina n) {
-		// TODO Auto-generated method stub
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		textFieldFecha.setText(sdf.format(n.getFechaEmision()));
-		textFieldImpBruto.setText(String.valueOf(n.getImporteBruto()));
-		textFieldIRPF.setText(String.valueOf(n.getIrpf()));
-		textFieldSegS.setText(String.valueOf(n.getSegSocial()));
-
-	}
-
 	private void restablecerCamposNuevoNomina() {
 		textFieldFecha.setText("");
 		textFieldImpBruto.setText("");
 		textFieldIRPF.setText("");
 		textFieldSegS.setText("");
+		textFieldID.setText("");
 
 	}
 
-	private void restablecerTodo() {
+	private void restablecerTodo() throws Exception {
 		// TODO Auto-generated method stub
+		rellenarTabla();
+		dtm1.setRowCount(0);
+		restablecerCamposNuevoNomina();
+		hablitarCamposNuevaNomina(false);
+		habilitarNominas(false);
+		habilitarCamposNomina(false);
+		inhabilitarEmpleado(true);
+		btnSeleccionar.setEnabled(false);
+		textFieldNombre.setText("");
+		textFieldNombre.grabFocus();
 
 	}
 
@@ -527,7 +543,7 @@ public class VentNominas extends JDialog {
 		textFieldIRPF.setEnabled(b);
 		textFieldSegS.setEnabled(b);
 		btnVolver.setEnabled(b);
-		btnGuardar.setEnabled(b);
+		btnCrear.setEnabled(b);
 
 	}
 
@@ -563,21 +579,11 @@ public class VentNominas extends JDialog {
 
 	}
 
-	private void insertarFilaNominaTabla(Nomina n) {
 
-		Object[] datos = new Object[5];
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		datos[0] = sdf.format(n.getFechaEmision());
-		datos[1] = n.getId();
-		datos[2] = n.getImporteBruto();
-		datos[3] = n.getIrpf();
-		datos[4] = n.getSegSocial();
-		dtm1.addRow(datos);
-
-	}
 
 	private void habilitarNominas(boolean flag) {
 		table_1.setEnabled(flag);
+		btnCancelar.setEnabled(flag);
 		btnNueva.setEnabled(flag);
 
 	}

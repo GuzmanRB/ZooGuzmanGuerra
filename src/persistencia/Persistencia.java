@@ -44,5 +44,9 @@ public interface Persistencia {
 	//METODOS DE NOMINAS
 	public List<Nomina> consultarNominasPorEmpleado(Integer id) throws Exception;
 	public Nomina consultarNominaID(Integer id) throws Exception;
+	public void guardarSinCommit(Object o) throws Exception;
+	public void borrarSinCommit(Object o) throws Exception;
+	public void transaccionCommit()throws Exception;
+	public void transaccionRollback()throws Exception;
 
 }
