@@ -39,20 +39,19 @@ public class VentCuidados extends JDialog {
 	private JButton btnBuscar;
 	private JScrollPane scrollPane;
 	private JLabel lblDescripcion;
-	private  Persistencia per;
+	private Persistencia per;
 	private DefaultTableModel dtm;
 	private JLabel lblCoste;
 	private JTextField textFieldCoste;
 	private String tipoVentana;
 
+	public VentCuidados(String tipoVentana, Persistencia per) {
 
-	public VentCuidados( String tipoVentana, Persistencia per) {
-		
-		this.tipoVentana=tipoVentana;
+		this.tipoVentana = tipoVentana;
 		setTitle(tipoVentana.toUpperCase());
 		setResizable(false);
-		
-		this.per=per;
+
+		this.per = per;
 		setBounds(100, 100, 571, 415);
 		getContentPane().setLayout(null);
 		{
@@ -85,7 +84,7 @@ public class VentCuidados extends JDialog {
 			scrollPane = new JScrollPane();
 			scrollPane.setBounds(10, 145, 535, 156);
 			getContentPane().add(scrollPane);
-			
+
 			table = new JTable();
 			scrollPane.setViewportView(table);
 		}
@@ -93,7 +92,7 @@ public class VentCuidados extends JDialog {
 			btnNuevo = new JButton("Nuevo");
 			btnNuevo.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					FormCuidados fa= new FormCuidados(tipoVentana,per);
+					FormCuidados fa = new FormCuidados(tipoVentana, per);
 					fa.setVisible(true);
 				}
 			});
@@ -177,77 +176,91 @@ public class VentCuidados extends JDialog {
 		});
 	}
 
-
-
 	private void borrar() throws Exception {
 
-		if (table.getSelectedRow()!=-1) {
-			
-			String desc = (String) dtm.getValueAt(table.getSelectedRow(), 1);
-			
-			Alimento a=(Alimento)per.consultarUnico("Alimento", desc);
-			
-			if (a.getConsumes().isEmpty()) {
-				per.borrar(a,"");
-				JOptionPane.showMessageDialog(this, tipoVentana+" borrado correctamente", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
-				textFieldCoste.setText("");
-				textFieldDesc.setText("");
-				buscar();
-			}else {
-				JOptionPane.showMessageDialog(this, "Este "+tipoVentana+"tiene animales que lo consumen, no es posible eliminarlo.", "INFORMACIÓN", JOptionPane.WARNING_MESSAGE);
-			}
-			
-		}else {
-			JOptionPane.showMessageDialog(this, "Debe selecionar un "+tipoVentana+" de la tabla.", "INFORMACIÓN", JOptionPane.WARNING_MESSAGE);
-		}
-		
-		
-	}
+		if (table.getSelectedRow() >= 0) {
 
+			String desc = (String) dtm.getValueAt(table.getSelectedRow(), 1);
+
+			if (tipoVentana.equals("Tratamiento")) {
+				Tratamiento t = (Tratamiento) per.consultarUnico("Tratamiento", desc);
+
+				if (t.getEmpleados().isEmpty()) {
+					per.borrar(t, "");
+					JOptionPane.showMessageDialog(this, tipoVentana + " borrado correctamente", "INFORMACIÓN",
+							JOptionPane.INFORMATION_MESSAGE);
+					textFieldCoste.setText("");
+					textFieldDesc.setText("");
+					buscar();
+				} else {
+					JOptionPane.showMessageDialog(this,
+							"Este " + tipoVentana + " tiene empleados que lo aplican, no es posible eliminarlo.",
+							"INFORMACIÓN", JOptionPane.WARNING_MESSAGE);
+				}
+
+			} else {
+				Alimento a = (Alimento) per.consultarUnico("Alimento", desc);
+
+				if (a.getConsumes().isEmpty()) {
+					per.borrar(a, "");
+					JOptionPane.showMessageDialog(this, tipoVentana + " borrado correctamente", "INFORMACIÓN",
+							JOptionPane.INFORMATION_MESSAGE);
+					textFieldCoste.setText("");
+					textFieldDesc.setText("");
+					buscar();
+				} else {
+					JOptionPane.showMessageDialog(this,
+							"Este " + tipoVentana + " tiene animales que lo cosumen, no es posible eliminarlo.",
+							"INFORMACIÓN", JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		}
+
+	}
 
 	private void rellenarDatos() {
-		if (table.getSelectedRow()!=-1) {
-			textFieldDesc.setText((String)dtm.getValueAt(table.getSelectedRow(), 1));
+		if (table.getSelectedRow() != -1) {
+			textFieldDesc.setText((String) dtm.getValueAt(table.getSelectedRow(), 1));
 			textFieldCoste.setText(String.valueOf(dtm.getValueAt(table.getSelectedRow(), 2)));
 		}
-		
+
 	}
+
 	private void buscar() throws Exception {
 		mostrarBotones(true);
 		String desc = textFieldDesc.getText().trim();
-		rellenarTabla((List)per.consultarPorDesc(tipoVentana, desc));
+		rellenarTabla((List) per.consultarPorDesc(tipoVentana, desc));
 
 	}
 
 	private void rellenarTabla(List<Object> cuidados) {
 		dtm.setRowCount(0);
 		Object[] datos = new Object[3];
-		
+
 		if (tipoVentana.equalsIgnoreCase("tratamiento")) {
 			Tratamiento t;
 			for (int i = 0; i < cuidados.size(); i++) {
-				t=(Tratamiento)cuidados.get(i);
+				t = (Tratamiento) cuidados.get(i);
 				datos[0] = t.getId();
 				datos[1] = t.getDescripcion();
 				datos[2] = t.getCoste();
 
 				dtm.addRow(datos);
 			}
-		}else {
+		} else {
 			Alimento a;
 			for (int i = 0; i < cuidados.size(); i++) {
-				a=(Alimento)cuidados.get(i);
-				datos[0] =a.getId();
-				datos[1] =a.getDescripcion();
-				datos[2] =a.getCoste();
+				a = (Alimento) cuidados.get(i);
+				datos[0] = a.getId();
+				datos[1] = a.getDescripcion();
+				datos[2] = a.getCoste();
 
 				dtm.addRow(datos);
 			}
 		}
 
-
-
 	}
+
 	private void mostrarBotones(boolean flag) {
 		// TODO Auto-generated method stub
 		lblCoste.setVisible(flag);
@@ -256,6 +269,7 @@ public class VentCuidados extends JDialog {
 		btnModificar.setVisible(flag);
 		btnNuevo.setVisible(flag);
 	}
+
 	private void restablecerTodo() {
 		// TODO Auto-generated method stub
 		textFieldCoste.setText("");
@@ -263,55 +277,62 @@ public class VentCuidados extends JDialog {
 		mostrarBotones(false);
 		dtm.setRowCount(0);
 	}
+
 	private void guardar() throws Exception {
-		if (table.getSelectedRow()!=-1) {
-			String desc= (String) dtm.getValueAt(table.getSelectedRow(), 1);
-			Object o= per.consultarUnico(tipoVentana, desc);
-			
-			String nuevaDesc= textFieldDesc.getText().trim().toUpperCase();
+		if (table.getSelectedRow() != -1) {
+			String desc = (String) dtm.getValueAt(table.getSelectedRow(), 1);
+			Object o = per.consultarUnico(tipoVentana, desc);
+
+			String nuevaDesc = textFieldDesc.getText().trim().toUpperCase();
 			Double coste;
 			if (nuevaDesc.equals("")) {
-				JOptionPane.showMessageDialog(this, "La descripción no puede estar vacía.", "INFORMACIÓN", JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(this, "La descripción no puede estar vacía.", "INFORMACIÓN",
+						JOptionPane.WARNING_MESSAGE);
 				textFieldDesc.grabFocus();
 				return;
 			}
 			try {
-				coste= Double.valueOf(textFieldCoste.getText().trim());
+				coste = Double.valueOf(textFieldCoste.getText().trim());
 			} catch (NumberFormatException e) {
-				JOptionPane.showMessageDialog(this, "Solo puede introducir números en el campo coste", "INFORMACIÓN", JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Solo puede introducir números en el campo coste", "INFORMACIÓN",
+						JOptionPane.WARNING_MESSAGE);
 				textFieldCoste.setText("");
 				textFieldCoste.grabFocus();
 				return;
 			}
-			if (per.consultarUnico(tipoVentana, desc)!=null) {
-				JOptionPane.showMessageDialog(this, "Ya existe un "+tipoVentana+" con esta descripción.", "INFORMACIÓN", JOptionPane.WARNING_MESSAGE);
+			if (per.consultarUnico(tipoVentana, desc) != null) {
+				JOptionPane.showMessageDialog(this, "Ya existe un " + tipoVentana + " con esta descripción.",
+						"INFORMACIÓN", JOptionPane.WARNING_MESSAGE);
 				return;
-			}else {
+			} else {
 				if (tipoVentana.equalsIgnoreCase("tratamiento")) {
-					Tratamiento t=(Tratamiento)o;
+					Tratamiento t = (Tratamiento) o;
 					t.setCoste(coste);
 					t.setDescripcion(nuevaDesc);
-					o=t;
-					
-				}else {
-					Alimento a=(Alimento)o;
+					o = t;
+
+				} else {
+					Alimento a = (Alimento) o;
 					a.setCoste(coste);
 					a.setDescripcion(nuevaDesc);
-					o=a;
+					o = a;
 				}
 
-				if (per.guardar(o,"")) {
-					JOptionPane.showMessageDialog(this, tipoVentana+" modificado correctamente.", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
+				if (per.guardar(o, "")) {
+					JOptionPane.showMessageDialog(this, tipoVentana + " modificado correctamente.", "INFORMACIÓN",
+							JOptionPane.INFORMATION_MESSAGE);
 					textFieldCoste.setText("");
 					textFieldDesc.setText("");
 					buscar();
-				}else {
-					JOptionPane.showMessageDialog(this, "No se ha podido modificar el "+tipoVentana, "INFORMACIÓN", JOptionPane.WARNING_MESSAGE);
+				} else {
+					JOptionPane.showMessageDialog(this, "No se ha podido modificar el " + tipoVentana, "INFORMACIÓN",
+							JOptionPane.WARNING_MESSAGE);
 				}
 			}
-			
-		}else {
-			JOptionPane.showMessageDialog(this, "Debe selecionar un "+tipoVentana+" de la tabla.", "INFORMACIÓN", JOptionPane.WARNING_MESSAGE);
+
+		} else {
+			JOptionPane.showMessageDialog(this, "Debe selecionar un " + tipoVentana + " de la tabla.", "INFORMACIÓN",
+					JOptionPane.WARNING_MESSAGE);
 		}
 
 	}

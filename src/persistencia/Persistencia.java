@@ -8,6 +8,7 @@ import clasesZoo.Empleado;
 import clasesZoo.Entrada;
 import clasesZoo.Evento;
 import clasesZoo.Nomina;
+import clasesZoo.Zona;
 
 public interface Persistencia {
 //	public void
@@ -18,7 +19,7 @@ public interface Persistencia {
 	public void refresh(Object o, String tabla)throws Exception; //Refrescar un objeto
 	
 	//METODSOS DE ANIMALES
-	public List<Animal> consultarAnimales(String nombre, Integer especie) throws Exception;
+	public List<Animal> consultarAnimales(String nombre, String especie) throws Exception;
 	public Animal consultarAnimalID (Integer id) throws Exception;
 	public Animal conultarAnimalUnico(String nombre, Integer especie) throws Exception;
 	
@@ -48,5 +49,6 @@ public interface Persistencia {
 	public void borrarSinCommit(Object o) throws Exception;
 	public void transaccionCommit()throws Exception;
 	public void transaccionRollback()throws Exception;
+	public void refrescar(Object o) throws Exception;
 
 }

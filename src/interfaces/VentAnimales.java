@@ -300,7 +300,7 @@ public class VentAnimales extends JDialog {
 		String desc=(String)cbEspecie.getSelectedItem();
 		if (desc!=null) {
 			Especie e= (Especie)per.consultarUnico("Especie", desc);
-			animales = per.consultarAnimales(textFieldNombre.getText().trim(),e.getId() );
+			animales = per.consultarAnimales(textFieldNombre.getText().trim(),e.getDescripcion() );
 		}else {
 			animales = per.consultarAnimales(textFieldNombre.getText().trim(),null );
 			

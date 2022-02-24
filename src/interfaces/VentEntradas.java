@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class VentEntradas extends JDialog {
 	private JTextField textFieldCantidad;
@@ -41,11 +43,23 @@ public class VentEntradas extends JDialog {
 	private JSeparator separator;
 	private JSeparator separator_1;
 	private JScrollPane scrollPane;
-	private JButton btnCancelar;
+	private JButton btnInicio;
 	private DefaultTableModel dtm;
 	private JTable table;
+	private JButton btnGuardar;
 
 	public VentEntradas(Persistencia per) {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					per.transaccionRollback();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		
 		this.per=per;
 		setTitle("ENTRADAS");
@@ -152,14 +166,14 @@ public class VentEntradas extends JDialog {
 		btnEliminar.setBounds(10, 391, 108, 34);
 		getContentPane().add(btnEliminar);
 		
-		btnCancelar = new JButton("Cancelar");
-		btnCancelar.addActionListener(new ActionListener() {
+		btnInicio = new JButton("Inicio");
+		btnInicio.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				restablecerTodo();
 			}
 		});
-		btnCancelar.setBounds(324, 391, 108, 34);
-		getContentPane().add(btnCancelar);
+		btnInicio.setBounds(324, 391, 108, 34);
+		getContentPane().add(btnInicio);
 		
 		//Creacion de la tabla
 		dtm= new DefaultTableModel();
@@ -171,6 +185,22 @@ public class VentEntradas extends JDialog {
 		
 		table = new JTable(dtm);
 		scrollPane.setViewportView(table);
+		
+		btnGuardar = new JButton("Guardar");
+		btnGuardar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					per.transaccionCommit();
+					JOptionPane.showMessageDialog(null, "Cambios guardados", "AVISO", JOptionPane.INFORMATION_MESSAGE);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		btnGuardar.setEnabled(false);
+		btnGuardar.setBounds(196, 391, 108, 34);
+		getContentPane().add(btnGuardar);
 
 		
 		ListSelectionModel listSelectionModel= table.getSelectionModel();
@@ -193,15 +223,18 @@ public class VentEntradas extends JDialog {
 	
 	
 	
-	protected void borrarEntrada() throws NumberFormatException, Exception {
-		if (table.getSelectedRow()>=0) {
-			Entrada ent= per.consultarEntradaID(Integer.parseInt(String.valueOf(dtm.getValueAt(table.getSelectedRow(), 1))));
-			Evento evento= ent.getEvento();
-			per.borrar(ent,"");
-			JOptionPane.showMessageDialog(this, "Entrada borrada correctament", "AVISO", JOptionPane.INFORMATION_MESSAGE);
-			per.refresh(evento,"");
-			rellenarDatos();
+	private void borrarEntrada() throws NumberFormatException, Exception {
+		
+		if (JOptionPane.showConfirmDialog(this, "Seguro que desea eliminar la entrada?","AVISO",JOptionPane.WARNING_MESSAGE)==0) {
+			if (table.getSelectedRow()>=0) {
+				Entrada ent= per.consultarEntradaID(Integer.parseInt(String.valueOf(dtm.getValueAt(table.getSelectedRow(), 1))));
+				per.borrarSinCommit(ent);
+				JOptionPane.showMessageDialog(this, "Entrada borrada correctamente", "AVISO", JOptionPane.INFORMATION_MESSAGE);
+				rellenarDatos();
+				btnGuardar.setEnabled(true);
+			}
 		}
+
 		
 	}
 
@@ -230,11 +263,12 @@ public class VentEntradas extends JDialog {
 			Entrada e= new Entrada();
 			e.setEvento(evento);
 			e.setFechaHoraVenta(new Date(System.currentTimeMillis()));
-			per.guardar(e,"");
+			per.guardarSinCommit(e);
 			
 		}
 		textFieldImporte.setText(String.valueOf(ent*evento.getPrecio()));
 		inhabilitarCompra(false);
+		btnGuardar.setEnabled(true);
 		
 	}
 

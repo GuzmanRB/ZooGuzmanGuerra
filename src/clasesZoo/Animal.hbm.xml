@@ -20,7 +20,7 @@
         <property name="fechaNac" type="date">
             <column name="fechaNac" length="10" />
         </property>
-        <set name="animaltratamientos" table="animaltratamiento" inverse="true" lazy="true" fetch="select">
+        <set name="animaltratamientos" table="animaltratamiento" cascade="all-delete-orphan" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="idAnimal" not-null="true" />
             </key>

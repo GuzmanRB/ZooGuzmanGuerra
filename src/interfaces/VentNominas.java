@@ -41,7 +41,7 @@ public class VentNominas extends JDialog {
 	private JScrollPane scrollPane_1;
 	private JButton btnNueva;
 	private JButton btnBorrar;
-	private JButton btnCancelar;
+	private JButton btnInicio;
 	private JButton btnSeleccionar;
 	private JScrollPane scrollPane;
 	private JButton btnGuardarTodo;
@@ -56,7 +56,6 @@ public class VentNominas extends JDialog {
 	private JTextField textFieldSegS;
 	private JButton btnCrear;
 	private JButton btnVolver;
-	private JTextField textFieldID;
 
 	public VentNominas(Persistencia per) {
 		addWindowListener(new WindowAdapter() {
@@ -150,9 +149,9 @@ public class VentNominas extends JDialog {
 		btnBorrar.setBounds(229, 513, 108, 34);
 		getContentPane().add(btnBorrar);
 
-		btnCancelar = new JButton("Cancelar");
-		btnCancelar.setEnabled(false);
-		btnCancelar.addActionListener(new ActionListener() {
+		btnInicio = new JButton("Inicio");
+		btnInicio.setEnabled(false);
+		btnInicio.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					restablecerTodo();
@@ -162,8 +161,8 @@ public class VentNominas extends JDialog {
 				}
 			}
 		});
-		btnCancelar.setBounds(343, 513, 108, 34);
-		getContentPane().add(btnCancelar);
+		btnInicio.setBounds(343, 513, 108, 34);
+		getContentPane().add(btnInicio);
 
 		btnGuardarTodo = new JButton("Guardar");
 		btnGuardarTodo.addActionListener(new ActionListener() {
@@ -251,7 +250,9 @@ public class VentNominas extends JDialog {
 		dtm.addColumn("FECHA NAC");
 
 		table = new JTable(dtm);
+		table.getTableHeader().setReorderingAllowed(false);
 		scrollPane.setViewportView(table);
+		
 
 		ListSelectionModel listSelectionModel = table.getSelectionModel();
 		listSelectionModel.addListSelectionListener(new ListSelectionListener() {
@@ -278,6 +279,7 @@ public class VentNominas extends JDialog {
 		dtm1.addColumn("SEG.SOCIAL");
 
 		table_1 = new JTable(dtm1);
+		table_1.getTableHeader().setReorderingAllowed(false);
 		scrollPane_1.setViewportView(table_1);
 
 		btnVolver = new JButton("Volver");
@@ -289,13 +291,6 @@ public class VentNominas extends JDialog {
 		btnVolver.setEnabled(false);
 		btnVolver.setBounds(508, 513, 108, 34);
 		getContentPane().add(btnVolver);
-
-		textFieldID = new JTextField();
-		textFieldID.setEnabled(false);
-		textFieldID.setEditable(false);
-		textFieldID.setBounds(646, 409, 86, 20);
-		getContentPane().add(textFieldID);
-		textFieldID.setColumns(10);
 
 		ListSelectionModel listSelectionModel1 = table_1.getSelectionModel();
 		listSelectionModel1.addListSelectionListener(new ListSelectionListener() {
@@ -362,9 +357,12 @@ public class VentNominas extends JDialog {
 
 	private void eliminar() throws Exception {
 		Nomina n = per.consultarNominaID((Integer)dtm1.getValueAt(table_1.getSelectedRow(), 1));
-		per.borrarSinCommit(n);
-		btnGuardarTodo.setEnabled(true);
-		rellenarTablaNomina();
+		if (JOptionPane.showConfirmDialog(this, "Seguro que desea elminar el registro", "AVISO", JOptionPane.WARNING_MESSAGE)==0) {
+			per.borrarSinCommit(n);
+			btnGuardarTodo.setEnabled(true);
+			rellenarTablaNomina();
+		}
+
 		
 	}
 
@@ -500,7 +498,6 @@ public class VentNominas extends JDialog {
 		textFieldImpBruto.setText("");
 		textFieldIRPF.setText("");
 		textFieldSegS.setText("");
-		textFieldID.setText("");
 
 	}
 
@@ -529,7 +526,7 @@ public class VentNominas extends JDialog {
 	private void habilitarCamposNomina(boolean b) {
 
 		btnNueva.setEnabled(b);
-		btnCancelar.setEnabled(b);
+		btnInicio.setEnabled(b);
 		btnGuardarTodo.setEnabled(b);
 		table_1.setEnabled(b);
 
@@ -583,7 +580,7 @@ public class VentNominas extends JDialog {
 
 	private void habilitarNominas(boolean flag) {
 		table_1.setEnabled(flag);
-		btnCancelar.setEnabled(flag);
+		btnInicio.setEnabled(flag);
 		btnNueva.setEnabled(flag);
 
 	}

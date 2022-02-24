@@ -51,10 +51,9 @@ public class PersistenciaHibernate implements Persistencia{
 	public void refresh(Object o, String tabla) throws Exception {
 		sesion.beginTransaction();
 		sesion.refresh(o);
-		sesion.getTransaction().commit();
 		
 	}
-	public List<Animal> consultarAnimales(String nombre, Integer especie) {
+	public List<Animal> consultarAnimales(String nombre, String especie) {
 		List<Animal> la;
 		Query q;
 		
@@ -62,9 +61,7 @@ public class PersistenciaHibernate implements Persistencia{
 			q = sesion.createQuery("SELECT a FROM Animal a WHERE nombre LIKE '%"+nombre+"%'");
 			la = q.list();
 		}else {
-			q = sesion.createQuery("SELECT a FROM Animal a WHERE nombre LIKE '%"+nombre+"%' AND idEspecie=?");
-			
-			q.setInteger(0, especie);
+			q = sesion.createQuery("SELECT a FROM Animal a WHERE nombre LIKE '%"+nombre+"%' AND idEspecie=  LIKE '%"+especie+"%'");
 			la = q.list();
 		}
 
@@ -199,11 +196,11 @@ public class PersistenciaHibernate implements Persistencia{
 	public void guardarSinCommit(Object o) throws Exception {
 		if (transaccion==null || !transaccion.isActive()) {
 			sesion.beginTransaction();
+			transaccion=sesion.getTransaction();
 			
 		}
-		sesion.save(o);
-		transaccion=sesion.getTransaction();
-		
+		sesion.persist(o);
+		sesion.flush();
 		
 		
 	}
@@ -212,12 +209,12 @@ public class PersistenciaHibernate implements Persistencia{
 	public void borrarSinCommit(Object o) throws Exception {
 		if (transaccion==null || !transaccion.isActive()) {
 			sesion.beginTransaction();
+			transaccion=sesion.getTransaction();
 			
 		}
-		sesion.delete(o);
-		transaccion=sesion.getTransaction();
-		
-		
+		sesion.persist(o);
+		sesion.flush();
+	
 	}
 
 	@Override
@@ -225,8 +222,9 @@ public class PersistenciaHibernate implements Persistencia{
 		// TODO Auto-generated method stub
 		if (transaccion!=null && transaccion.isActive()) {
 			transaccion.commit();
+			
+			
 		}
-		
 		
 	}
 
@@ -235,9 +233,19 @@ public class PersistenciaHibernate implements Persistencia{
 		// TODO Auto-generated method stub
 		if (transaccion!=null && transaccion.isActive()) {
 			transaccion.rollback();
+			
 		}
-		
-		
+	}
+
+
+	public void refrescar(Object o ) {
+		if (transaccion==null || !transaccion.isActive()) {
+			sesion.beginTransaction();
+			transaccion=sesion.getTransaction();
+			
+		}
+		sesion.refresh(o);;
+
 	}
 	
 

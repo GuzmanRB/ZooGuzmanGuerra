@@ -100,6 +100,15 @@ public class Principal extends JFrame {
 		});
 		mPersonal.add(mINominas);
 		
+		JMenuItem mntmEmpleadoszona = new JMenuItem("Empleados/Zona");
+		mntmEmpleadoszona.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				VentTrabajadoresZona vtz= new VentTrabajadoresZona(per);
+				vtz.setVisible(true);
+			}
+		});
+		mPersonal.add(mntmEmpleadoszona);
+		
 		JMenu mCuidados = new JMenu("Cuidados");
 		menuBar.add(mCuidados);
 		
@@ -120,6 +129,25 @@ public class Principal extends JFrame {
 			}
 		});
 		mCuidados.add(mITratamientos);
+		
+		JMenuItem mntmCapacitacinemp = new JMenuItem("Capacitaci\u00F3n/Emp");
+		mntmCapacitacinemp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				VentCapacitacionEmp vce=new VentCapacitacionEmp(per);
+				vce.setVisible(true);
+			}
+		});
+		mCuidados.add(mntmCapacitacinemp);
+		
+		JMenuItem mntmConsumoalimentos = new JMenuItem("Consumo/Alimentos");
+		mntmConsumoalimentos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				VentConsumoAli vca= new VentConsumoAli(per);
+				vca.setVisible(true);
+				
+			}
+		});
+		mCuidados.add(mntmConsumoalimentos);
 		
 		JMenu mVentas = new JMenu("Ventas");
 		menuBar.add(mVentas);
